@@ -47,7 +47,7 @@ func (this *Options) Valid() bool {
 }
 
 func (this *Options) PrintUsage() {
-	var banner string = ` _ __ ___   ___ _ __ ___   ___ 
+	var banner string = ` _ __ ___   ___ _ __ ___   ___
 | '_ ' _ \ / _ \ '_ ' _ \ / _ \
 | | | | | |  __/ | | | | |  __/
 |_| |_| |_|\___|_| |_| |_|\___|
@@ -61,11 +61,13 @@ func (this *Options) PrintUsage() {
 	fmt.Println("")
 
 	for _, name := range images {
-		name = path.Base(name)
-		name = strings.TrimSuffix(name, path.Ext(name))
-		color.Green("    " + name)
+		if strings.HasPrefix(name, data.IMAGE_PATH) {
+			name = path.Base(name)
+			name = strings.TrimSuffix(name, data.IMAGE_EXTENSION)
+			color.Green("    " + name)
+		}
 	}
-	fmt.Println("")
 
+	fmt.Println("")
 	flag.Usage()
 }
