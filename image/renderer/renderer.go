@@ -51,7 +51,7 @@ func drawBottomBanner(ctx *gg.Context, text string) {
 func drawText(ctx *gg.Context, text string, x float64, y float64, ax float64, ay float64) {
 	text = strings.ToUpper(text)
 	width := float64(ctx.Width()) - (IMAGE_MARGIN * 2)
-	height := float64(ctx.Height()) / 3.4
+	height := float64(ctx.Height()) / 3.5
 	calculateFontSize(ctx, text, width, height)
 
 	ctx.SetHexColor("#000")
