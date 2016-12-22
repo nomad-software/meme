@@ -1,6 +1,11 @@
 package main
 
-import "github.com/nomad-software/meme/cli"
+import (
+	"fmt"
+
+	"github.com/nomad-software/meme/cli"
+	"github.com/nomad-software/meme/image"
+)
 
 func main() {
 
@@ -11,5 +16,7 @@ func main() {
 
 	} else if options.Valid() {
 
+		image := image.Load(options.Image)
+		fmt.Printf("%v\n", image.Bounds())
 	}
 }

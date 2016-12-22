@@ -3,13 +3,10 @@ package cli
 import (
 	"flag"
 	"fmt"
-	"os"
-	"path"
-	"sort"
-	"strings"
 
 	"github.com/fatih/color"
-	"github.com/nomad-software/meme/data"
+	"github.com/nomad-software/meme/image"
+	"github.com/nomad-software/meme/output"
 )
 
 type Options struct {
@@ -34,13 +31,11 @@ func ParseOptions() Options {
 func (this *Options) Valid() bool {
 
 	if this.Image == "" {
-		fmt.Fprintln(os.Stderr, color.RedString("An image is required."))
-		return false
+		output.Error("An image is required")
 	}
 
 	if (this.Top + this.Bottom) == "" {
-		fmt.Fprintln(os.Stderr, color.RedString("At least one piece of text is required."))
-		return false
+		output.Error("At least one piece of text is required")
 	}
 
 	return true
@@ -53,19 +48,12 @@ func (this *Options) PrintUsage() {
 |_| |_| |_|\___|_| |_| |_|\___|
 
 `
-	images := data.AssetNames()
-	sort.Sort(sort.StringSlice(images))
-
 	color.Cyan(banner)
 	fmt.Println("  Default images:")
 	fmt.Println("")
 
-	for _, name := range images {
-		if strings.HasPrefix(name, data.IMAGE_PATH) {
-			name = path.Base(name)
-			name = strings.TrimSuffix(name, data.IMAGE_EXTENSION)
-			color.Green("    " + name)
-		}
+	for _, name := range image.ImageIds {
+		color.Green("    " + name)
 	}
 
 	fmt.Println("")
