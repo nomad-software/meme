@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/fogleman/gg"
+	"github.com/nfnt/resize"
 	"github.com/nomad-software/meme/cli"
 	"github.com/nomad-software/meme/font"
 	"github.com/nomad-software/meme/output"
@@ -15,12 +16,13 @@ const (
 	FONT_BORDER_RADIUS = 3.0
 	FONT_LEADING       = 1.4
 	FONT_SIZE_MAX      = 80.0
+	IMAGE_MAX_SIZE     = 600
 	IMAGE_MARGIN       = 25.0
 )
 
 // Render the meme using the base image.
 func Render(options cli.Options, base image.Image) image.Image {
-	ctx := gg.NewContextForImage(base)
+	ctx := gg.NewContextForImage(checkSize(base))
 
 	if options.Top != "" {
 		drawTopBanner(ctx, options.Top)
@@ -31,6 +33,19 @@ func Render(options cli.Options, base image.Image) image.Image {
 	}
 
 	return ctx.Image()
+}
+
+// Resize the passed image if it is too big.
+func checkSize(img image.Image) image.Image {
+	if img.Bounds().Dx() > IMAGE_MAX_SIZE {
+		img = resize.Resize(IMAGE_MAX_SIZE, 0, img, resize.Bilinear)
+	}
+
+	if img.Bounds().Dy() > IMAGE_MAX_SIZE {
+		img = resize.Resize(0, IMAGE_MAX_SIZE, img, resize.Bilinear)
+	}
+
+	return img
 }
 
 // Draw the top text onto the meme.
