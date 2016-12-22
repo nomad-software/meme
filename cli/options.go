@@ -3,11 +3,30 @@ package cli
 import (
 	"flag"
 	"fmt"
+	"path"
+	"sort"
+	"strings"
 
 	"github.com/fatih/color"
-	"github.com/nomad-software/meme/image"
+	"github.com/nomad-software/meme/data"
 	"github.com/nomad-software/meme/output"
 )
+
+var (
+	ImageIds []string
+)
+
+// Initialise the package.
+func init() {
+	for _, asset := range data.AssetNames() {
+		if strings.HasPrefix(asset, data.IMAGE_PATH) {
+			id := strings.TrimSuffix(path.Base(asset), data.IMAGE_EXTENSION)
+			ImageIds = append(ImageIds, id)
+		}
+	}
+
+	sort.Sort(sort.StringSlice(ImageIds))
+}
 
 type Options struct {
 	Image  string
@@ -52,7 +71,7 @@ func (this *Options) PrintUsage() {
 	fmt.Println("  Default images:")
 	fmt.Println("")
 
-	for _, name := range image.ImageIds {
+	for _, name := range ImageIds {
 		color.Green("    " + name)
 	}
 

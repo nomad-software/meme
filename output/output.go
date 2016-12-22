@@ -19,6 +19,6 @@ func Error(text string) {
 	os.Exit(1)
 }
 
-func Infoln(format string, args ...interface{}) {
+func Info(format string, args ...interface{}) {
 	fmt.Printf(color.GreenString(format)+"\n", args...)
 }

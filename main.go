@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/nomad-software/meme/cli"
 	"github.com/nomad-software/meme/image"
+	"github.com/nomad-software/meme/image/renderer"
+	"github.com/nomad-software/meme/output"
 )
 
 func main() {
@@ -15,8 +15,10 @@ func main() {
 		options.PrintUsage()
 
 	} else if options.Valid() {
+		img := image.Load(options.Image)
+		img = renderer.Render(options, img)
 
-		image := image.Load(options.Image)
-		fmt.Printf("%v\n", image.Bounds())
+		file := image.Save(img)
+		output.Info("Meme written to: %s", file)
 	}
 }
