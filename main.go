@@ -18,7 +18,12 @@ func main() {
 		img := image.Load(options.Image)
 		img = renderer.Render(options, img)
 
-		file := image.Save(img)
-		output.Info(file)
+		if options.ClientId != "" {
+			url := image.Upload(options, img)
+			output.Info(url)
+		} else {
+			file := image.Save(img)
+			output.Info(file)
+		}
 	}
 }

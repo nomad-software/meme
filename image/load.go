@@ -48,7 +48,7 @@ func Load(path string) image.Image {
 	}
 
 	output.Error("Image not recognised")
-	panic("Not reached")
+	panic("Never reached")
 }
 
 // Return true if the passed string is an embedded asset id, false if not.
