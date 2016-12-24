@@ -60,8 +60,6 @@ func isAsset(id string) bool {
 // Load and return an embedded asset (image) by id.
 // The id is assumed to exist.
 func load(id string) image.Image {
-	output.Info("Loading: %s", id)
-
 	asset, _ := imageMap[id]
 	stream, _ := data.Asset(asset)
 
@@ -75,8 +73,6 @@ func isUrl(url string) bool {
 
 // Download the image located at the passed image URL, decode and return it.
 func download(url string) image.Image {
-	output.Info("Downloading: %s", url)
-
 	res, err := http.Get(url)
 	output.OnError(err, "Request error")
 	defer res.Body.Close()
@@ -101,8 +97,6 @@ func isLocal(path string) bool {
 // Read and return a file on the local filesystem.
 // The file is assumed to exist.
 func read(path string) image.Image {
-	output.Info("Reading: %s", path)
-
 	path, err := homedir.Expand(path)
 	output.OnError(err, "Could not expand path")
 

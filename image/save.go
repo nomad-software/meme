@@ -14,7 +14,7 @@ func Save(img image.Image) string {
 	name := fileName()
 
 	file, err := os.Create(name)
-	output.OnError(err, "Unable to create file")
+	output.OnError(err, "Could not create image file")
 	defer file.Close()
 
 	png.Encode(file, img)

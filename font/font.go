@@ -19,13 +19,13 @@ func init() {
 	_, err := os.Stat(Path)
 	if err != nil {
 		file, err := os.Create(Path)
-		output.OnError(err, "Unable to create file")
+		output.OnError(err, "Could not create font file")
 		defer file.Close()
 
 		stream, err := data.Asset(data.FONT)
-		output.OnError(err, "Can not extract font")
+		output.OnError(err, "Could not extract font")
 
 		_, err = file.Write(stream)
-		output.OnError(err, "Can not write to file")
+		output.OnError(err, "Could not write font file")
 	}
 }

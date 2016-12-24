@@ -19,6 +19,6 @@ func main() {
 		img = renderer.Render(options, img)
 
 		file := image.Save(img)
-		output.Info("Meme written to: %s", file)
+		output.Info(file)
 	}
 }

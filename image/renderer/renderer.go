@@ -13,11 +13,11 @@ import (
 )
 
 const (
-	FONT_BORDER_RADIUS = 3.0
-	FONT_LEADING       = 1.4
-	FONT_SIZE_MAX      = 80.0
-	IMAGE_MAX_SIZE     = 600
-	IMAGE_MARGIN       = 25.0
+	FONT_BORDER_RADIUS = 3.0  // px
+	FONT_LEADING       = 1.4  // percentage
+	FONT_SIZE_MAX      = 75.0 // pts
+	IMAGE_MAX_SIZE     = 600  // px
+	IMAGE_MARGIN       = 25.0 // px
 )
 
 // Render the meme using the base image.
@@ -35,7 +35,7 @@ func Render(options cli.Options, base image.Image) image.Image {
 	return ctx.Image()
 }
 
-// Resize the passed image if it is too big.
+// Resize the passed image if it's too big.
 func checkSize(img image.Image) image.Image {
 	if img.Bounds().Dx() > IMAGE_MAX_SIZE {
 		img = resize.Resize(IMAGE_MAX_SIZE, 0, img, resize.Bilinear)
@@ -66,9 +66,10 @@ func drawBottomBanner(ctx *gg.Context, text string) {
 func drawText(ctx *gg.Context, text string, x float64, y float64, ax float64, ay float64) {
 	text = strings.ToUpper(text)
 	width := float64(ctx.Width()) - (IMAGE_MARGIN * 2)
-	height := float64(ctx.Height()) / 3.5
+	height := float64(ctx.Height()) / 3.75
 	calculateFontSize(ctx, text, width, height)
 
+	// Draw the text border.
 	ctx.SetHexColor("#000")
 	for angle := 0.0; angle < (2 * math.Pi); angle += 0.35 {
 		bx := x + (math.Sin(angle) * FONT_BORDER_RADIUS)
@@ -76,6 +77,7 @@ func drawText(ctx *gg.Context, text string, x float64, y float64, ax float64, ay
 		ctx.DrawStringWrapped(text, bx, by, ax, ay, width, FONT_LEADING, gg.AlignCenter)
 	}
 
+	// Draw the text itself.
 	ctx.SetHexColor("#FFF")
 	ctx.DrawStringWrapped(text, x, y, ax, ay, width, FONT_LEADING, gg.AlignCenter)
 }
@@ -87,12 +89,11 @@ func calculateFontSize(ctx *gg.Context, text string, width float64, height float
 		var lWidth, lHeight float64
 
 		err := ctx.LoadFontFace(font.Path, size)
-		output.OnError(err, "Can not load font")
+		output.OnError(err, "Could not load font file")
 		lines := ctx.WordWrap(text, width)
 
 		for _, line := range lines {
 			lWidth, lHeight = ctx.MeasureString(line)
-
 			if lWidth > rWidth {
 				rWidth = lWidth
 			}

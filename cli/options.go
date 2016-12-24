@@ -35,18 +35,28 @@ type Options struct {
 	Help   bool
 }
 
+// Parse the command line options.
 func ParseOptions() Options {
 	var opt Options
+	var text string
 
-	flag.StringVar(&opt.Image, "img", "", "One of the above default images, a URL or a local file.")
-	flag.StringVar(&opt.Top, "top", "", "The text at the top of the meme.")
-	flag.StringVar(&opt.Bottom, "btm", "", "The text at the bottom of the meme.")
-	flag.BoolVar(&opt.Help, "help", false, "Show help.")
+	flag.StringVar(&opt.Image, "i", "", "One of the above templates, a URL or the path to a local file.")
+	flag.StringVar(&text, "t", "", "The meme text. Separate the top and bottom banners using a pipe.")
+	flag.BoolVar(&opt.Help, "h", false, "Show help.")
 	flag.Parse()
+
+	parsed := strings.Split(text, "|")
+	if len(parsed) == 1 {
+		opt.Top = parsed[0]
+	} else {
+		opt.Top = parsed[0]
+		opt.Bottom = parsed[1]
+	}
 
 	return opt
 }
 
+// Validate the command line options.
 func (this *Options) Valid() bool {
 
 	if this.Image == "" {
@@ -60,6 +70,7 @@ func (this *Options) Valid() bool {
 	return true
 }
 
+// Print the usage of this program.
 func (this *Options) PrintUsage() {
 	var banner string = ` _ __ ___   ___ _ __ ___   ___
 | '_ ' _ \ / _ \ '_ ' _ \ / _ \
@@ -67,14 +78,23 @@ func (this *Options) PrintUsage() {
 |_| |_| |_|\___|_| |_| |_|\___|
 
 `
-	color.Cyan(banner)
-	fmt.Println("  Default images:")
-	fmt.Println("")
-
-	for _, name := range ImageIds {
-		color.Green("    " + name)
-	}
-
+	color.Green(banner)
 	fmt.Println("")
 	flag.Usage()
+	fmt.Println("")
+
+	fmt.Println("  Templates")
+	fmt.Println("")
+	for _, name := range ImageIds {
+		color.Cyan("    " + name)
+	}
+	fmt.Println("")
+
+	fmt.Println("  Examples")
+	fmt.Println("")
+	color.Cyan("    meme -i kirk-khan -t \"|khaaaan\"")
+	color.Cyan("    meme -i brace-yourselves -t \"Brace yourselves|The memes are coming!\"")
+	color.Cyan("    meme -i http://i.imgur.com/FsWetC0.jpg -t \"|China\"")
+	color.Cyan("    meme -i ~/Pictures/face.png -t \"Hello\"")
+	fmt.Println("")
 }
