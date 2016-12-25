@@ -13,11 +13,13 @@ import (
 )
 
 const (
-	FONT_BORDER_RADIUS = 3.0  // px
-	FONT_LEADING       = 1.4  // percentage
-	FONT_SIZE_MAX      = 75.0 // pts
-	IMAGE_MAX_SIZE     = 600  // px
-	IMAGE_MARGIN       = 25.0 // px
+	FONT_BORDER_RADIUS  = 3.0  // px
+	FONT_LEADING        = 1.4  // percentage
+	FONT_SIZE_MAX       = 75.0 // pts
+	TOP_TEXT_DIVISOR    = 5.0  // divisor
+	BOTTOM_TEXT_DIVISOR = 3.75 // divisor
+	IMAGE_MAX_SIZE      = 600  // px
+	IMAGE_MARGIN        = 18.0 // px
 )
 
 // Render the meme using the base image.
@@ -52,21 +54,21 @@ func checkSize(img image.Image) image.Image {
 func drawTopBanner(ctx *gg.Context, text string) {
 	x := float64(ctx.Width()) / 2
 	y := IMAGE_MARGIN
-	drawText(ctx, text, x, y, 0.5, 0.0)
+	drawText(ctx, text, x, y, 0.5, 0.0, TOP_TEXT_DIVISOR)
 }
 
 // Draw the bottom text onto the meme.
 func drawBottomBanner(ctx *gg.Context, text string) {
 	x := float64(ctx.Width()) / 2
 	y := float64(ctx.Height()) - IMAGE_MARGIN
-	drawText(ctx, text, x, y, 0.5, 1.0)
+	drawText(ctx, text, x, y, 0.5, 1.0, BOTTOM_TEXT_DIVISOR)
 }
 
 // Draw text onto the meme.
-func drawText(ctx *gg.Context, text string, x float64, y float64, ax float64, ay float64) {
+func drawText(ctx *gg.Context, text string, x float64, y float64, ax float64, ay float64, divisor float64) {
 	text = strings.ToUpper(text)
 	width := float64(ctx.Width()) - (IMAGE_MARGIN * 2)
-	height := float64(ctx.Height()) / 3.75
+	height := float64(ctx.Height()) / divisor
 	calculateFontSize(ctx, text, width, height)
 
 	// Draw the text border.
