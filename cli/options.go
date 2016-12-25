@@ -41,10 +41,10 @@ func ParseOptions() Options {
 	var opt Options
 	var text string
 
-	flag.StringVar(&opt.Image, "i", "", "One of the above templates, a URL or the path to a local file.")
+	flag.StringVar(&opt.Image, "i", "", "One of the built-in templates, a URL or the path to a local file.")
 	flag.StringVar(&text, "t", "", "The meme text. Separate the top and bottom banners using a pipe.")
 	flag.BoolVar(&opt.Help, "h", false, "Show help.")
-	flag.StringVar(&opt.ClientId, "cid", "", "The client id of an application registered with imgur.com. If specified, the new meme will be uploaded to imgur.com")
+	flag.StringVar(&opt.ClientId, "cid", "", "The client id of an application registered with imgur.com. If specified, the new meme will be uploaded to imgur.com (See README for full details.)")
 	flag.Parse()
 
 	parsed := strings.Split(text, "|")
