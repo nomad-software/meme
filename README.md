@@ -29,7 +29,7 @@ When the command finishes, the location of the meme is printed to the terminal.
 
 If you supply an imgur client id when invoking the command, the meme will
 automatically be uploaded to [imgur.com](http://imgur.com/). To get a client
-id, follow the following steps.
+id, follow these steps.
 
 1. [Create an imgur account](https://imgur.com/register)
 2. [Register this application for anonymous usage](https://api.imgur.com/oauth2/addclient)
