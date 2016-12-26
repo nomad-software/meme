@@ -22,7 +22,7 @@ func main() {
 			url := image.Upload(options, img)
 			output.Info(url)
 		} else {
-			file := image.Save(img)
+			file := image.Save(options, img)
 			output.Info(file)
 		}
 	}

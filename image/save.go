@@ -6,12 +6,19 @@ import (
 	"os"
 	"path"
 
+	"github.com/nomad-software/meme/cli"
 	"github.com/nomad-software/meme/output"
 )
 
 // Save the passed image to disk.
-func Save(img image.Image) string {
-	name := fileName()
+func Save(opt cli.Options, img image.Image) string {
+	var name string
+
+	if opt.Name != "" {
+		name = opt.Name
+	} else {
+		name = tempName()
+	}
 
 	file, err := os.Create(name)
 	output.OnError(err, "Could not create image file")
@@ -23,7 +30,7 @@ func Save(img image.Image) string {
 }
 
 // Generate a temporary file name.
-func fileName() string {
+func tempName() string {
 	dir := os.TempDir()
 	return path.Join(dir, "meme.png")
 }

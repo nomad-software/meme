@@ -29,11 +29,12 @@ func init() {
 }
 
 type Options struct {
-	Image    string
-	Top      string
 	Bottom   string
-	Help     bool
 	ClientId string
+	Help     bool
+	Image    string
+	Name     string
+	Top      string
 }
 
 // Parse the command line options.
@@ -41,10 +42,11 @@ func ParseOptions() Options {
 	var opt Options
 	var text string
 
-	flag.StringVar(&opt.Image, "i", "", "One of the built-in templates, a URL or the path to a local file.")
-	flag.StringVar(&text, "t", "", "The meme text. Separate the top and bottom banners using a pipe.")
 	flag.BoolVar(&opt.Help, "h", false, "Show help.")
-	flag.StringVar(&opt.ClientId, "cid", "", "The client id of an application registered with imgur.com. If specified, the new meme will be uploaded to imgur.com (See README for full details.)")
+	flag.StringVar(&opt.ClientId, "cid", "", "The client id of an application registered with imgur.com. If specified, the new meme will be uploaded to imgur.com instead of being saved locally. (See README for full details.)")
+	flag.StringVar(&opt.Image, "i", "", "One of the built-in templates, a URL or the path to a local file (gif, jpeg or png.)")
+	flag.StringVar(&opt.Name, "o", "", "The optional name of the output file (png). If omitted, a temporary file will be used.")
+	flag.StringVar(&text, "t", "", "The meme text. Separate the top and bottom banners using a pipe character.")
 	flag.Parse()
 
 	parsed := strings.Split(text, "|")
@@ -63,6 +65,12 @@ func (this *Options) Valid() bool {
 
 	if this.Image == "" {
 		output.Error("An image is required")
+	}
+
+	if this.Name != "" {
+		if !strings.HasSuffix(strings.ToLower(this.Name), ".png") {
+			output.Error("The output file name must have the suffix of .png")
+		}
 	}
 
 	if (this.Top + this.Bottom) == "" {
