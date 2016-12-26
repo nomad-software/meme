@@ -9,7 +9,7 @@ To create a meme use the following command. The image can be an embedded
 template, a URL or the path to a local file.
 
 ```
-meme create -i brace-yourselves -t "brace yourselves|the memes are coming"
+meme -i brace-yourselves -t "brace yourselves|the memes are coming"
 ```
 
 When the command finishes, the location of the meme is printed to the terminal.
