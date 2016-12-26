@@ -36,19 +36,19 @@ func init() {
 // The string can be a embedded asset id, an image URL or a local file.
 func Load(path string) image.Image {
 	if isAsset(path) {
-		return load(path)
+		return loadAsset(path)
 	}
 
 	if isUrl(path) {
-		return download(path)
+		return downloadUrl(path)
 	}
 
-	if isLocal(path) {
-		return read(path)
+	if isLocalFile(path) {
+		return readFile(path)
 	}
 
 	if isStdin(path) {
-		return loadStdin()
+		return readStdin()
 	}
 
 	output.Error("Image not recognised")
@@ -63,23 +63,11 @@ func isAsset(id string) bool {
 
 // Load and return an embedded asset (image) by id.
 // The id is assumed to exist.
-func load(id string) image.Image {
+func loadAsset(id string) image.Image {
 	asset, _ := imageMap[id]
 	stream, _ := data.Asset(asset)
 
 	return decode(bytes.NewReader(stream))
-}
-
-// return true if the passed string is '-'
-func isStdin(path string) bool {
-	return path == "-"
-}
-
-func loadStdin() image.Image {
-	var data []byte
-	data, err := ioutil.ReadAll(os.Stdin)
-	output.OnError(err, "Stdin read error")
-	return decode(bytes.NewReader(data))
 }
 
 // Return true if the passed string is an image URL, false if not.
@@ -88,7 +76,7 @@ func isUrl(url string) bool {
 }
 
 // Download the image located at the passed image URL, decode and return it.
-func download(url string) image.Image {
+func downloadUrl(url string) image.Image {
 	res, err := http.Get(url)
 	output.OnError(err, "Request error")
 	defer res.Body.Close()
@@ -102,7 +90,7 @@ func download(url string) image.Image {
 
 // Return true if the passed string is a file that exists on the local
 // filesystem, false if not.
-func isLocal(path string) bool {
+func isLocalFile(path string) bool {
 	path, err := homedir.Expand(path)
 	output.OnError(err, "Could not expand path")
 
@@ -112,12 +100,26 @@ func isLocal(path string) bool {
 
 // Read and return a file on the local filesystem.
 // The file is assumed to exist.
-func read(path string) image.Image {
+func readFile(path string) image.Image {
 	path, err := homedir.Expand(path)
 	output.OnError(err, "Could not expand path")
 
 	stream, err := ioutil.ReadFile(path)
 	output.OnError(err, "Could not read local file")
+
+	return decode(bytes.NewReader(stream))
+}
+
+// return true if the passed string is '-' meaning we should read the image
+// from stdin.
+func isStdin(path string) bool {
+	return path == "-"
+}
+
+// Read the image from stdin.
+func readStdin() image.Image {
+	stream, err := ioutil.ReadAll(os.Stdin)
+	output.OnError(err, "Could not read stdin")
 
 	return decode(bytes.NewReader(stream))
 }
