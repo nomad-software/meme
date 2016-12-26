@@ -47,6 +47,10 @@ func Load(path string) image.Image {
 		return read(path)
 	}
 
+	if isStdin(path) {
+		return loadStdin()
+	}
+
 	output.Error("Image not recognised")
 	panic("Never reached")
 }
@@ -64,6 +68,18 @@ func load(id string) image.Image {
 	stream, _ := data.Asset(asset)
 
 	return decode(bytes.NewReader(stream))
+}
+
+// return true if the passed string is '-'
+func isStdin(path string) bool {
+	return path == "-"
+}
+
+func loadStdin() image.Image {
+	var data []byte
+	data, err := ioutil.ReadAll(os.Stdin)
+	output.OnError(err, "Stdin read error")
+	return decode(bytes.NewReader(data))
 }
 
 // Return true if the passed string is an image URL, false if not.
