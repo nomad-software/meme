@@ -3,6 +3,12 @@
 
 ---
 
+## Features
+
+* Create memes from built-in templates, image URL's or local files
+* Resizes oversized images
+* Automatically upload to [imgur.com](http://imgur.com/) (when passed a client id)
+
 ## Example
 
 To create a meme use the following command. The image can be an embedded
@@ -13,6 +19,11 @@ meme -i brace-yourselves -t "brace yourselves|the memes are coming"
 ```
 
 When the command finishes, the location of the meme is printed to the terminal.
+
+## Installation
+
+* [Install Go](https://golang.org/doc/install)
+* Run `go get -u -v github.com/nomad-software/meme`
 
 ## Automatic uploads
 
