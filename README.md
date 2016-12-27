@@ -1,9 +1,11 @@
 # Meme
-**A command line utility for creating memes**
+**A command line utility for creating [image macro style memes](https://en.wikipedia.org/wiki/Image_macro)**
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/nomad-software/meme)](https://goreportcard.com/report/github.com/nomad-software/meme)
+[![Go report card](https://goreportcard.com/badge/github.com/nomad-software/meme)](https://goreportcard.com/report/github.com/nomad-software/meme)
 
 ---
+
+![Am i the only one around here?](http://i.imgur.com/WP1TAzg.png)
 
 ## Features
 
