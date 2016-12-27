@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	UPLOAD_URL = "https://api.imgur.com/3/upload"
+	uploadURL = "https://api.imgur.com/3/upload"
 )
 
 // Upload the image.
@@ -40,9 +40,9 @@ func encode(img image.Image) []byte {
 
 // Perform the request to the storage provider.
 func upload(opt cli.Options, base64 string) string {
-	req, err := http.NewRequest("POST", UPLOAD_URL, strings.NewReader(base64))
+	req, err := http.NewRequest("POST", uploadURL, strings.NewReader(base64))
 	output.OnError(err, "Could not create upload request")
-	req.Header.Set("Authorization", "Client-ID "+opt.ClientId)
+	req.Header.Set("Authorization", "Client-ID "+opt.ClientID)
 
 	resp, err := http.DefaultClient.Do(req)
 	output.OnError(err, "Could not upload image")
@@ -52,25 +52,21 @@ func upload(opt cli.Options, base64 string) string {
 		body, err := ioutil.ReadAll(resp.Body)
 		output.OnError(err, "Could not read response body")
 
-		var imgur ImgurResponse
+		var imgur imgurResponse
 		err = json.Unmarshal(body, &imgur)
 		output.OnError(err, "Could not decode json response")
 
 		return imgur.Data.Link
-
-	} else {
-		output.Error("Could not upload image")
 	}
 
+	output.Error("Could not upload image")
 	panic("Never reached")
 }
 
-type ImgurResponse struct {
-	Status  int       `json:"status"`
-	Success bool      `json:"success"`
-	Data    ImgurData `json:"data"`
+type imgurResponse struct {
+	Data imgurData `json:"data"`
 }
 
-type ImgurData struct {
+type imgurData struct {
 	Link string `json:"link"`
 }

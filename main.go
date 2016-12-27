@@ -1,6 +1,10 @@
 package main
 
 import (
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
+
 	"github.com/nomad-software/meme/cli"
 	"github.com/nomad-software/meme/image"
 	"github.com/nomad-software/meme/image/renderer"
@@ -18,7 +22,7 @@ func main() {
 		img := image.Load(options.Image)
 		img = renderer.Render(options, img)
 
-		if options.ClientId != "" {
+		if options.ClientID != "" {
 			url := image.Upload(options, img)
 			output.Info(url)
 		} else {

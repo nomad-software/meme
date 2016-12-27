@@ -3,9 +3,6 @@ package image
 import (
 	"bytes"
 	"image"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -19,14 +16,14 @@ import (
 )
 
 var (
-	imageMap map[string]string = make(map[string]string)
+	imageMap = make(map[string]string)
 )
 
 // Initialise the package.
 func init() {
 	for _, asset := range data.AssetNames() {
-		if strings.HasPrefix(asset, data.IMAGE_PATH) {
-			id := strings.TrimSuffix(filepath.Base(asset), data.IMAGE_EXTENSION)
+		if strings.HasPrefix(asset, data.ImagePath) {
+			id := strings.TrimSuffix(filepath.Base(asset), data.ImageExtension)
 			imageMap[id] = asset
 		}
 	}
@@ -39,8 +36,8 @@ func Load(path string) image.Image {
 		return loadAsset(path)
 	}
 
-	if isUrl(path) {
-		return downloadUrl(path)
+	if isURL(path) {
+		return downloadURL(path)
 	}
 
 	if isLocalFile(path) {
@@ -71,12 +68,12 @@ func loadAsset(id string) image.Image {
 }
 
 // Return true if the passed string is an image URL, false if not.
-func isUrl(url string) bool {
+func isURL(url string) bool {
 	return strings.HasPrefix(url, "http")
 }
 
 // Download the image located at the passed image URL, decode and return it.
-func downloadUrl(url string) image.Image {
+func downloadURL(url string) image.Image {
 	res, err := http.Get(url)
 	output.OnError(err, "Request error")
 	defer res.Body.Close()

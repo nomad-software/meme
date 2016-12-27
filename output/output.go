@@ -13,7 +13,7 @@ var (
 	stderr = colorable.NewColorableStderr()
 )
 
-// Print an error and exit the program if the error is non nil.
+// OnError prints an error if err is not nil and exits the program.
 func OnError(err error, text string) {
 	if err != nil {
 		fmt.Fprintln(stderr, color.RedString(text+": %s", err.Error()))
@@ -21,13 +21,13 @@ func OnError(err error, text string) {
 	}
 }
 
-// Print an error and exit the program.
+// Error prints an error and exits the program.
 func Error(text string) {
 	fmt.Fprintln(stderr, color.RedString(text))
 	os.Exit(1)
 }
 
-// Print information.
+// Info prints information.
 func Info(format string, args ...interface{}) {
 	fmt.Fprintf(stdout, color.GreenString(format)+"\n", args...)
 }

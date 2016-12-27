@@ -13,37 +13,38 @@ import (
 )
 
 var (
-	ImageIds []string
+	imageIds []string
 )
 
 // Initialise the package.
 func init() {
 	for _, asset := range data.AssetNames() {
-		if strings.HasPrefix(asset, data.IMAGE_PATH) {
-			id := strings.TrimSuffix(filepath.Base(asset), data.IMAGE_EXTENSION)
-			ImageIds = append(ImageIds, id)
+		if strings.HasPrefix(asset, data.ImagePath) {
+			id := strings.TrimSuffix(filepath.Base(asset), data.ImageExtension)
+			imageIds = append(imageIds, id)
 		}
 	}
 
-	sort.Sort(sort.StringSlice(ImageIds))
+	sort.Sort(sort.StringSlice(imageIds))
 }
 
+// Options holds the options passed on the command line.
 type Options struct {
 	Bottom   string
-	ClientId string
+	ClientID string
 	Help     bool
 	Image    string
 	Name     string
 	Top      string
 }
 
-// Parse the command line options.
+// ParseOptions parses the command line options.
 func ParseOptions() Options {
 	var opt Options
 	var text string
 
 	flag.BoolVar(&opt.Help, "h", false, "Show help.")
-	flag.StringVar(&opt.ClientId, "cid", "", "The client id of an application registered with imgur.com. If specified, the new meme will be uploaded to imgur.com instead of being saved locally. (See README for full details.)")
+	flag.StringVar(&opt.ClientID, "cid", "", "The client id of an application registered with imgur.com. If specified, the new meme will be uploaded to imgur.com instead of being saved locally. (See README for full details.)")
 	flag.StringVar(&opt.Image, "i", "", "One of the built-in templates, a URL or the path to a local file (gif, jpeg or png.) You can also use '-' to read an image from stdin.")
 	flag.StringVar(&opt.Name, "o", "", "The optional name of the output file (png). If omitted, a temporary file will be used.")
 	flag.StringVar(&text, "t", "", "The meme text. Separate the top and bottom banners using a pipe character.")
@@ -60,29 +61,30 @@ func ParseOptions() Options {
 	return opt
 }
 
-// Validate the command line options.
-func (this *Options) Valid() bool {
+// Valid validates the command line options and returns true if they are valid,
+// false if not.
+func (opt *Options) Valid() bool {
 
-	if this.Image == "" {
+	if opt.Image == "" {
 		output.Error("An image is required")
 	}
 
-	if this.Name != "" {
-		if !strings.HasSuffix(strings.ToLower(this.Name), ".png") {
+	if opt.Name != "" {
+		if !strings.HasSuffix(strings.ToLower(opt.Name), ".png") {
 			output.Error("The output file name must have the suffix of .png")
 		}
 	}
 
-	if (this.Top + this.Bottom) == "" {
+	if (opt.Top + opt.Bottom) == "" {
 		output.Error("At least one piece of text is required")
 	}
 
 	return true
 }
 
-// Print the usage of this program.
-func (this *Options) PrintUsage() {
-	var banner string = ` _ __ ___   ___ _ __ ___   ___
+// PrintUsage prints who to use this command.
+func (opt *Options) PrintUsage() {
+	var banner = ` _ __ ___   ___ _ __ ___   ___
 | '_ ' _ \ / _ \ '_ ' _ \ / _ \
 | | | | | |  __/ | | | | |  __/
 |_| |_| |_|\___|_| |_| |_|\___|
@@ -95,7 +97,7 @@ func (this *Options) PrintUsage() {
 
 	fmt.Println("  Templates")
 	fmt.Println("")
-	for _, name := range ImageIds {
+	for _, name := range imageIds {
 		color.Cyan("    " + name)
 	}
 	fmt.Println("")
