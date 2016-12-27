@@ -1,6 +1,7 @@
-[![Go Report Card](https://goreportcard.com/report/github.com/nomad-software/meme)](https://goreportcard.com/report/github.com/nomad-software/meme)
 # Meme
 **A command line utility for creating memes**
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/nomad-software/meme)](https://goreportcard.com/report/github.com/nomad-software/meme)
 
 ---
 
