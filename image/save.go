@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/png"
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/nomad-software/meme/cli"
 	"github.com/nomad-software/meme/output"
@@ -32,5 +32,5 @@ func Save(opt cli.Options, img image.Image) string {
 // Generate a temporary file name.
 func tempName() string {
 	dir := os.TempDir()
-	return path.Join(dir, "meme.png")
+	return filepath.Join(dir, "meme.png")
 }

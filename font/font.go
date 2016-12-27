@@ -2,7 +2,7 @@ package font
 
 import (
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/nomad-software/meme/data"
 	"github.com/nomad-software/meme/output"
@@ -14,7 +14,7 @@ var (
 
 // Write the embedded font to the temporary directory.
 func init() {
-	Path = path.Join(os.TempDir(), path.Base(data.FONT))
+	Path = filepath.Join(os.TempDir(), filepath.Base(data.FONT))
 
 	_, err := os.Stat(Path)
 	if err != nil {

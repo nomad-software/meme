@@ -10,7 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/mitchellh/go-homedir"
@@ -26,7 +26,7 @@ var (
 func init() {
 	for _, asset := range data.AssetNames() {
 		if strings.HasPrefix(asset, data.IMAGE_PATH) {
-			id := strings.TrimSuffix(path.Base(asset), data.IMAGE_EXTENSION)
+			id := strings.TrimSuffix(filepath.Base(asset), data.IMAGE_EXTENSION)
 			imageMap[id] = asset
 		}
 	}
