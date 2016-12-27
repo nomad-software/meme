@@ -44,6 +44,7 @@ func ParseOptions() Options {
 	var text string
 
 	flag.BoolVar(&opt.Help, "h", false, "Show help.")
+	flag.BoolVar(&opt.Help, "help", false, "Show help.")
 	flag.StringVar(&opt.ClientID, "cid", "", "The client id of an application registered with imgur.com. If specified, the new meme will be uploaded to imgur.com instead of being saved locally. (See README for full details.)")
 	flag.StringVar(&opt.Image, "i", "", "One of the built-in templates, a URL or the path to a local file (gif, jpeg or png.) You can also use '-' to read an image from stdin.")
 	flag.StringVar(&opt.Name, "o", "", "The optional name of the output file (png). If omitted, a temporary file will be used.")
