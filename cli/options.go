@@ -3,7 +3,7 @@ package cli
 import (
 	"flag"
 	"fmt"
-	"path"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -20,7 +20,7 @@ var (
 func init() {
 	for _, asset := range data.AssetNames() {
 		if strings.HasPrefix(asset, data.IMAGE_PATH) {
-			id := strings.TrimSuffix(path.Base(asset), data.IMAGE_EXTENSION)
+			id := strings.TrimSuffix(filepath.Base(asset), data.IMAGE_EXTENSION)
 			ImageIds = append(ImageIds, id)
 		}
 	}
