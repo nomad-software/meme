@@ -37,7 +37,7 @@ id, follow these steps.
 
 1. [Create an imgur account](https://imgur.com/register)
 2. [Register this application for anonymous usage](https://api.imgur.com/oauth2/addclient)
-3. Once registered, you get a client id for use when invoking the command. See `meme -h`
+3. Once registered, you get a client id for use when invoking the command. See `meme -help`
 4. [Read the rate limits](https://api.imgur.com/#limits)
 
 ## Advanced usage
@@ -55,13 +55,13 @@ meme -i http://i.imgur.com/FsWetC0.jpg -t "|China" | tee /dev/tty | xargs xdg-op
 Run the following command for help and to list all of the available templates.
 
 ```
-meme -h
+meme -help
 ```
 
 ## Built-in templates
 
 To create a meme using one of the built-in templates, use one of the following
-id's with the `-i` flag. (You can also list these using the `meme -h` command.)
+id's with the `-i` flag. (You can also list these using the `meme -help` command.)
 
 * [advice-mallard](https://github.com/nomad-software/meme/blob/master/data/images/advice-mallard.jpg)
 * [all-the-things](https://github.com/nomad-software/meme/blob/master/data/images/all-the-things.jpg)
