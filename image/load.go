@@ -64,9 +64,9 @@ func isAsset(id string) bool {
 // The id is assumed to exist.
 func loadAsset(id string) io.Reader {
 	asset, _ := imageMap[id]
-	stream, _ := data.Asset(asset)
+	st, _ := data.Asset(asset)
 
-	return bytes.NewReader(stream)
+	return bytes.NewReader(st)
 }
 
 // Return true if the passed string is an image URL, false if not.
@@ -84,7 +84,10 @@ func downloadURL(url string) io.Reader {
 		output.Error("Could not access URL")
 	}
 
-	return res.Body
+	st, err := ioutil.ReadAll(res.Body)
+	output.OnError(err, "Could not read response body")
+
+	return bytes.NewReader(st)
 }
 
 // Return true if the passed string is a file that exists on the local
@@ -103,10 +106,10 @@ func readFile(path string) io.Reader {
 	path, err := homedir.Expand(path)
 	output.OnError(err, "Could not expand path")
 
-	stream, err := ioutil.ReadFile(path)
+	st, err := ioutil.ReadFile(path)
 	output.OnError(err, "Could not read local file")
 
-	return bytes.NewReader(stream)
+	return bytes.NewReader(st)
 }
 
 // return true if the passed string is '-' meaning we should read the image
@@ -117,8 +120,8 @@ func isStdin(path string) bool {
 
 // Read the image from stdin.
 func readStdin() io.Reader {
-	stream, err := ioutil.ReadAll(os.Stdin)
+	st, err := ioutil.ReadAll(os.Stdin)
 	output.OnError(err, "Could not read stdin")
 
-	return bytes.NewReader(stream)
+	return bytes.NewReader(st)
 }
