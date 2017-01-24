@@ -30,12 +30,14 @@ func init() {
 
 // Options holds the options passed on the command line.
 type Options struct {
-	Bottom   string
-	ClientID string
-	Help     bool
-	Image    string
-	Name     string
-	Top      string
+	Anim      bool
+	Bottom    string
+	ClientID  string
+	Help      bool
+	Image     string
+	ImageType string
+	OutName   string
+	Top       string
 }
 
 // ParseOptions parses the command line options.
@@ -47,8 +49,9 @@ func ParseOptions() Options {
 	flag.BoolVar(&opt.Help, "help", false, "Show help.")
 	flag.StringVar(&opt.ClientID, "cid", "", "The client id of an application registered with imgur.com. If specified, the new meme will be uploaded to imgur.com instead of being saved locally. (See README for full details.)")
 	flag.StringVar(&opt.Image, "i", "", "One of the built-in templates, a URL or the path to a local file (gif, jpeg or png.) You can also use '-' to read an image from stdin.")
-	flag.StringVar(&opt.Name, "o", "", "The optional name of the output file (png). If omitted, a temporary file will be used.")
+	flag.StringVar(&opt.OutName, "o", "", "The optional name of the output file (png). If omitted, a temporary file will be used.")
 	flag.StringVar(&text, "t", "", "The meme text. Separate the top and bottom banners using a pipe character.")
+	flag.BoolVar(&opt.Anim, "gif", false, "Assume the image is a gif. Animations will be preserved and the output will be a gif.")
 	flag.Parse()
 
 	parsed := strings.Split(text, "|")
@@ -70,9 +73,15 @@ func (opt *Options) Valid() bool {
 		output.Error("An image is required")
 	}
 
-	if opt.Name != "" {
-		if !strings.HasSuffix(strings.ToLower(opt.Name), ".png") {
+	if !opt.Anim && opt.OutName != "" {
+		if !strings.HasSuffix(strings.ToLower(opt.OutName), ".png") {
 			output.Error("The output file name must have the suffix of .png")
+		}
+	}
+
+	if opt.Anim && opt.OutName != "" {
+		if !strings.HasSuffix(strings.ToLower(opt.OutName), ".gif") {
+			output.Error("The output file name must have the suffix of .gif")
 		}
 	}
 

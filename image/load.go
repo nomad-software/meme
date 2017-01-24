@@ -2,7 +2,6 @@ package image
 
 import (
 	"bytes"
-	"image"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -11,7 +10,9 @@ import (
 	"strings"
 
 	"github.com/mitchellh/go-homedir"
+	"github.com/nomad-software/meme/cli"
 	"github.com/nomad-software/meme/data"
+	"github.com/nomad-software/meme/image/stream"
 	"github.com/nomad-software/meme/output"
 )
 
@@ -31,25 +32,26 @@ func init() {
 
 // Load an image from the passed string.
 // The string can be a embedded asset id, an image URL or a local file.
-func Load(path string) image.Image {
-	if isAsset(path) {
-		return loadAsset(path)
+func Load(opt cli.Options) stream.Stream {
+	var s io.Reader
+
+	if isAsset(opt.Image) {
+		s = loadAsset(opt.Image)
+
+	} else if isURL(opt.Image) {
+		s = downloadURL(opt.Image)
+
+	} else if isLocalFile(opt.Image) {
+		s = readFile(opt.Image)
+
+	} else if isStdin(opt.Image) {
+		s = readStdin()
+
+	} else {
+		output.Error("Image not recognised")
 	}
 
-	if isURL(path) {
-		return downloadURL(path)
-	}
-
-	if isLocalFile(path) {
-		return readFile(path)
-	}
-
-	if isStdin(path) {
-		return readStdin()
-	}
-
-	output.Error("Image not recognised")
-	panic("Never reached")
+	return stream.NewStream(s)
 }
 
 // Return true if the passed string is an embedded asset id, false if not.
@@ -60,11 +62,11 @@ func isAsset(id string) bool {
 
 // Load and return an embedded asset (image) by id.
 // The id is assumed to exist.
-func loadAsset(id string) image.Image {
+func loadAsset(id string) io.Reader {
 	asset, _ := imageMap[id]
 	stream, _ := data.Asset(asset)
 
-	return decode(bytes.NewReader(stream))
+	return bytes.NewReader(stream)
 }
 
 // Return true if the passed string is an image URL, false if not.
@@ -73,7 +75,7 @@ func isURL(url string) bool {
 }
 
 // Download the image located at the passed image URL, decode and return it.
-func downloadURL(url string) image.Image {
+func downloadURL(url string) io.Reader {
 	res, err := http.Get(url)
 	output.OnError(err, "Request error")
 	defer res.Body.Close()
@@ -82,7 +84,7 @@ func downloadURL(url string) image.Image {
 		output.Error("Could not access URL")
 	}
 
-	return decode(res.Body)
+	return res.Body
 }
 
 // Return true if the passed string is a file that exists on the local
@@ -97,14 +99,14 @@ func isLocalFile(path string) bool {
 
 // Read and return a file on the local filesystem.
 // The file is assumed to exist.
-func readFile(path string) image.Image {
+func readFile(path string) io.Reader {
 	path, err := homedir.Expand(path)
 	output.OnError(err, "Could not expand path")
 
 	stream, err := ioutil.ReadFile(path)
 	output.OnError(err, "Could not read local file")
 
-	return decode(bytes.NewReader(stream))
+	return bytes.NewReader(stream)
 }
 
 // return true if the passed string is '-' meaning we should read the image
@@ -114,16 +116,9 @@ func isStdin(path string) bool {
 }
 
 // Read the image from stdin.
-func readStdin() image.Image {
+func readStdin() io.Reader {
 	stream, err := ioutil.ReadAll(os.Stdin)
 	output.OnError(err, "Could not read stdin")
 
-	return decode(bytes.NewReader(stream))
-}
-
-// Decode the passed byte stream and return an image.
-func decode(r io.Reader) image.Image {
-	img, _, err := image.Decode(r)
-	output.OnError(err, "Could not decode image")
-	return img
+	return bytes.NewReader(stream)
 }
