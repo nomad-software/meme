@@ -3,6 +3,7 @@ package image
 import (
 	"image"
 	"image/draw"
+	"math"
 
 	"github.com/nfnt/resize"
 	"github.com/nomad-software/meme/cli"
@@ -15,28 +16,32 @@ const (
 )
 
 // Resize the passed image if it's too big.
-func resizeImage(img image.Image) image.Image {
-	if img.Bounds().Dx() > maxImageSize {
-		img = resize.Resize(maxImageSize, 0, img, resize.Bilinear)
+func resizeImage(img image.Image) (image.Image, float64) {
+	width := img.Bounds().Dx()
+	height := img.Bounds().Dy()
+	var factor float64 = 1.0
+
+	if width > height && width > maxImageSize {
+		img = resize.Resize(maxImageSize, 0, img, resize.NearestNeighbor)
+		factor = float64(maxImageSize) / float64(width)
+
+	} else if height > width && height > maxImageSize {
+		img = resize.Resize(0, maxImageSize, img, resize.NearestNeighbor)
+		factor = float64(maxImageSize) / float64(width)
 	}
 
-	if img.Bounds().Dy() > maxImageSize {
-		img = resize.Resize(0, maxImageSize, img, resize.Bilinear)
-	}
-
-	return img
+	return img, factor
 }
 
 // RenderImage performs the graphical manipulation of the image.
 func RenderImage(opt cli.Options, st stream.Stream) stream.Stream {
+	img, _ := resizeImage(st.DecodeImage())
 
-	base := resizeImage(st.DecodeImage())
-	ctx := gfx.NewContext(base)
-
+	// Draw on the text.
+	ctx := gfx.NewContext(img)
 	if opt.Top != "" {
 		gfx.TopBanner(ctx, opt.Top)
 	}
-
 	if opt.Bottom != "" {
 		gfx.BottomBanner(ctx, opt.Bottom)
 	}
@@ -46,19 +51,21 @@ func RenderImage(opt cli.Options, st stream.Stream) stream.Stream {
 
 // RenderGif performs the graphical manipulation of the gif.
 func RenderGif(opt cli.Options, st stream.Stream) stream.Stream {
+	src := st.DecodeGif()
+	base := src.Image[0]
 
-	gif := st.DecodeGif()
-	base := gif.Image[0]
-
-	for x := 0; x < len(gif.Image); x++ {
-		frame := gif.Image[x]
-
-		// Resize each frame so it's the same as the base.
+	for x, frame := range src.Image {
+		// Expand each frame, if needed, so it's the same size as the base.
+		// This is to make it easier to draw and position the text.
 		img := image.NewPaletted(base.Bounds(), frame.Palette)
-		// draw.Draw(img, img.Bounds(), image.Transparent, image.ZP, draw.Src)
 		draw.Draw(img, frame.Bounds(), frame, frame.Bounds().Min, draw.Src)
 
-		// Draw on it.
+		// resImg, factor := resizeImage(img)
+		// resBounds := resizeBounds(frame.Bounds(), factor)
+		// src.Config.Width = resImg.Bounds().Dx()
+		// src.Config.Height = resImg.Bounds().Dy()
+
+		// Draw on the text.
 		ctx := gfx.NewContext(img)
 		if opt.Top != "" {
 			gfx.TopBanner(ctx, opt.Top)
@@ -72,8 +79,18 @@ func RenderGif(opt cli.Options, st stream.Stream) stream.Stream {
 		draw.FloydSteinberg.Draw(img, img.Bounds(), ctx.Image(), image.ZP)
 
 		// Replace the frame.
-		gif.Image[x] = img.SubImage(frame.Bounds()).(*image.Paletted)
+		src.Image[x] = img.SubImage(frame.Bounds()).(*image.Paletted)
 	}
 
-	return stream.EncodeGif(gif)
+	return stream.EncodeGif(src)
+}
+
+// Recalculate bound sizes from a passed factor.
+func resizeBounds(src image.Rectangle, factor float64) image.Rectangle {
+	x0 := int(math.Ceil(float64(src.Min.X) * factor))
+	y0 := int(math.Ceil(float64(src.Min.Y) * factor))
+	x1 := int(math.Floor(float64(src.Max.X) * factor))
+	y1 := int(math.Floor(float64(src.Max.Y) * factor))
+
+	return image.Rect(x0, y0, x1, y1)
 }

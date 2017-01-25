@@ -12,7 +12,8 @@
 * Create memes from built-in templates
 * Create memes from image URL's
 * Create memes from local image files
-* Resizes oversized images
+* Supports drawing on animated gifs
+* Resizes oversized images (doesn't include animated gifs yet)
 * Automatically upload to [imgur.com](http://imgur.com/) (when passed a client id)
 * Works on Linux, Mac and Windows
 
