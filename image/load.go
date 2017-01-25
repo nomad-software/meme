@@ -30,22 +30,22 @@ func init() {
 	}
 }
 
-// Load an image from the passed string.
-// The string can be a embedded asset id, an image URL or a local file.
+// Load an image from the passed string or stdin.
+// The string will be a embedded asset id, an image URL or a local file.
 func Load(opt cli.Options) stream.Stream {
 	var s io.Reader
 
-	if isAsset(opt.Image) {
-		s = loadAsset(opt.Image)
-
-	} else if isURL(opt.Image) {
+	if isURL(opt.Image) {
 		s = downloadURL(opt.Image)
-
-	} else if isLocalFile(opt.Image) {
-		s = readFile(opt.Image)
 
 	} else if isStdin(opt.Image) {
 		s = readStdin()
+
+	} else if isAsset(opt.Image) {
+		s = loadAsset(opt.Image)
+
+	} else if isLocalFile(opt.Image) {
+		s = readFile(opt.Image)
 
 	} else {
 		output.Error("Image not recognised")

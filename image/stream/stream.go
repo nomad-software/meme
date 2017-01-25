@@ -34,11 +34,6 @@ func (st *Stream) Read(b []byte) (n int, err error) {
 	return
 }
 
-// Reset resets the internal stream reader pointer.
-func (st *Stream) Reset() {
-	st.index = 0
-}
-
 // IsGif returns true if the loaded image is a gif.
 func (st *Stream) IsGif() bool {
 	return st.typ == "gif"
@@ -54,8 +49,8 @@ func (st *Stream) IsPng() bool {
 	return st.typ == "png"
 }
 
-// Extension returns the file extension of the image.
-func (st *Stream) Extension() string {
+// FileExt returns the file extension of the image.
+func (st *Stream) FileExt() string {
 	if st.IsGif() {
 		return "gif"
 	}
@@ -71,21 +66,21 @@ func (st *Stream) Extension() string {
 // NewStream creates a new stream.
 func NewStream(stream io.Reader) Stream {
 	a, err := ioutil.ReadAll(stream)
-	output.OnError(err, "Could not read image")
+	output.OnError(err, "Could not read image bytes")
 
 	b := make([]byte, len(a))
 	copy(b, a)
 
-	_, imgType, err := image.DecodeConfig(bytes.NewReader(a))
+	_, typ, err := image.DecodeConfig(bytes.NewReader(a))
 	output.OnError(err, "Could not decode image config")
 
 	return Stream{
 		bytes: b,
-		typ:   imgType,
+		typ:   typ,
 	}
 }
 
-// Encode an image into a stream.
+// EncodeImage encodes an image into a stream.
 func EncodeImage(img image.Image) Stream {
 	var buffer bytes.Buffer
 	png.Encode(&buffer, img)
@@ -99,7 +94,7 @@ func (st *Stream) DecodeImage() image.Image {
 	return img
 }
 
-// Encode a gif into a stream.
+// EncodeGif encodes a gif into a stream.
 func EncodeGif(img *gif.GIF) Stream {
 	var buffer bytes.Buffer
 	gif.EncodeAll(&buffer, img)

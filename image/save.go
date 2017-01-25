@@ -18,7 +18,7 @@ func Save(opt cli.Options, st stream.Stream) string {
 	if opt.OutName != "" {
 		name = opt.OutName
 	} else {
-		name = tempName(st)
+		name = tempName(st.FileExt())
 	}
 
 	file, err := os.Create(name)
@@ -32,7 +32,7 @@ func Save(opt cli.Options, st stream.Stream) string {
 }
 
 // Generate a temporary file name.
-func tempName(st stream.Stream) string {
+func tempName(ext string) string {
 	dir := os.TempDir()
-	return filepath.Join(dir, fmt.Sprintf("meme.%s", st.Extension()))
+	return filepath.Join(dir, fmt.Sprintf("meme.%s", ext))
 }

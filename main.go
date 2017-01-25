@@ -7,7 +7,6 @@ import (
 
 	"github.com/nomad-software/meme/cli"
 	"github.com/nomad-software/meme/image"
-	"github.com/nomad-software/meme/image/gif"
 	"github.com/nomad-software/meme/output"
 )
 
@@ -21,9 +20,9 @@ func main() {
 		st := image.Load(opt)
 
 		if opt.Anim && st.IsGif() {
-			st = gif.Render(opt, st)
+			st = image.RenderGif(opt, st)
 		} else {
-			st = image.Render(opt, st)
+			st = image.RenderImage(opt, st)
 		}
 
 		if opt.ClientID != "" {
