@@ -16,7 +16,7 @@ const (
 	maxImageSize = 600 // px
 )
 
-// reduceGif will resize an image if any of its dimensions are above the passed max
+// reduceImage will resize an image if any of its dimensions are above the passed max
 // size.
 func reduceImage(img image.Image, maxSize uint) image.Image {
 	w := img.Bounds().Dx()
@@ -59,7 +59,7 @@ type drawInfo struct {
 // RenderGif performs the graphical manipulation of the gif.
 func RenderGif(opt cli.Options, st stream.Stream) stream.Stream {
 	src := st.DecodeGif()
-	src = reduceGif(src, maxImageSize)
+	src = reduceGif(opt, src, maxImageSize)
 	queue := make(chan drawInfo)
 
 	for x, frame := range src.Image {
@@ -108,35 +108,76 @@ func processFrameDraw(fi drawInfo, output chan drawInfo) {
 
 // A unit of work containing frame information for reducing a gif frame.
 type reduceInfo struct {
-	src   *gif.GIF
-	fctr  float64
-	frame *image.Paletted
-	index int
+	config *image.Config
+	base   *image.RGBA
+	frame  *image.Paletted
+	fctr   float64
+	index  int
 }
 
 // reduceGif will resize a gif if any of its dimensions are above the passed max
 // size.
-func reduceGif(src *gif.GIF, maxSize int) *gif.GIF {
-	fctr := calcFactor(src.Image[0], maxSize)
+func reduceGif(opt cli.Options, src *gif.GIF, maxSize int) *gif.GIF {
+	first := src.Image[0]
+	fctr := calcFactor(first, maxSize)
 	queue := make(chan reduceInfo)
+	base := image.NewRGBA(first.Bounds())
 
 	for x, frame := range src.Image {
 		rs := reduceInfo{
-			src:   src,
-			fctr:  fctr,
-			frame: frame,
-			index: x,
+			config: &src.Config,
+			base:   base,
+			frame:  frame,
+			fctr:   fctr,
+			index:  x,
 		}
-		go processFrameResize(rs, queue)
+		if opt.MaxAnim {
+			src.Image[x] = processFrameResizeMax(rs)
+		} else {
+			go processFrameResize(rs, queue)
+		}
 	}
 
-	for range src.Image {
-		rs := <-queue
-		src.Image[rs.index] = rs.frame
+	if !opt.MaxAnim {
+		for range src.Image {
+			rs := <-queue
+			src.Image[rs.index] = rs.frame
+		}
 	}
 
 	close(queue)
 	return src
+}
+
+// Process resizing each gif frame at max quality.
+func processFrameResizeMax(rs reduceInfo) *image.Paletted {
+	if rs.fctr == 1.0 {
+		return rs.frame // No reduction needed.
+	}
+
+	if rs.index == 0 {
+		resBounds := calcBounds(rs.frame.Bounds(), rs.fctr)
+		rs.config.Width = resBounds.Dx()
+		rs.config.Height = resBounds.Dy()
+	}
+
+	if rs.base.Bounds().Dx() == 0 && rs.frame.Bounds().Dy() == 0 {
+		return rs.frame // Empty frame, don't change or can cause corruption.
+	}
+
+	// Draw over the base.
+	draw.Draw(rs.base, rs.frame.Bounds(), rs.frame, rs.frame.Bounds().Min, draw.Over)
+
+	// Resize the base to the required size.
+	w := uint(rs.config.Width)
+	h := uint(rs.config.Height)
+	res := resize.Resize(w, h, rs.base, resize.NearestNeighbor)
+
+	// Create a new frame.
+	img := image.NewPaletted(res.Bounds(), rs.frame.Palette)
+	draw.Draw(img, res.Bounds(), res, image.ZP, draw.Src)
+
+	return img
 }
 
 // Process resizing each gif frame.
@@ -149,8 +190,8 @@ func processFrameResize(rs reduceInfo, output chan reduceInfo) {
 	resBounds := calcBounds(rs.frame.Bounds(), rs.fctr)
 
 	if rs.index == 0 {
-		rs.src.Config.Width = resBounds.Dx()
-		rs.src.Config.Height = resBounds.Dy()
+		rs.config.Width = resBounds.Dx()
+		rs.config.Height = resBounds.Dy()
 	}
 
 	if resBounds.Dx() == 0 && resBounds.Dy() == 0 {
