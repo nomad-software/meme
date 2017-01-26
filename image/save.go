@@ -1,36 +1,38 @@
 package image
 
 import (
-	"image"
-	"image/png"
+	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
 	"github.com/nomad-software/meme/cli"
+	"github.com/nomad-software/meme/image/stream"
 	"github.com/nomad-software/meme/output"
 )
 
 // Save the passed image to disk.
-func Save(opt cli.Options, img image.Image) string {
+func Save(opt cli.Options, st stream.Stream) string {
 	var name string
 
-	if opt.Name != "" {
-		name = opt.Name
+	if opt.OutName != "" {
+		name = opt.OutName
 	} else {
-		name = tempName()
+		name = tempName(st.FileExt())
 	}
 
 	file, err := os.Create(name)
 	output.OnError(err, "Could not create image file")
 	defer file.Close()
 
-	png.Encode(file, img)
+	_, err = io.Copy(file, &st)
+	output.OnError(err, "Could not save image stream to file")
 
 	return name
 }
 
 // Generate a temporary file name.
-func tempName() string {
+func tempName(ext string) string {
 	dir := os.TempDir()
-	return filepath.Join(dir, "meme.png")
+	return filepath.Join(dir, fmt.Sprintf("meme.%s", ext))
 }

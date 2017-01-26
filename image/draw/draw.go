@@ -1,4 +1,4 @@
-package renderer
+package draw
 
 import (
 	"image"
@@ -6,8 +6,6 @@ import (
 	"strings"
 
 	"github.com/fogleman/gg"
-	"github.com/nfnt/resize"
-	"github.com/nomad-software/meme/cli"
 	"github.com/nomad-software/meme/font"
 	"github.com/nomad-software/meme/output"
 )
@@ -18,47 +16,23 @@ const (
 	maxFontSize        = 75.0 // pts
 	topTextDivisor     = 5.0  // divisor
 	bottomImageDivisor = 3.75 // divisor
-	maxImageSize       = 600  // px
 	imageMargin        = 18.0 // px
 )
 
-// Render the meme using the base image.
-func Render(options cli.Options, base image.Image) image.Image {
-	ctx := gg.NewContextForImage(checkSize(base))
-
-	if options.Top != "" {
-		drawTopBanner(ctx, options.Top)
-	}
-
-	if options.Bottom != "" {
-		drawBottomBanner(ctx, options.Bottom)
-	}
-
-	return ctx.Image()
+// NewContext creates a new context for the passed image
+func NewContext(img image.Image) *gg.Context {
+	return gg.NewContextForImage(img)
 }
 
-// Resize the passed image if it's too big.
-func checkSize(img image.Image) image.Image {
-	if img.Bounds().Dx() > maxImageSize {
-		img = resize.Resize(maxImageSize, 0, img, resize.Bilinear)
-	}
-
-	if img.Bounds().Dy() > maxImageSize {
-		img = resize.Resize(0, maxImageSize, img, resize.Bilinear)
-	}
-
-	return img
-}
-
-// Draw the top text onto the meme.
-func drawTopBanner(ctx *gg.Context, text string) {
+// TopBanner draws the top text onto the meme.
+func TopBanner(ctx *gg.Context, text string) {
 	x := float64(ctx.Width()) / 2
 	y := imageMargin
 	drawText(ctx, text, x, y, 0.5, 0.0, topTextDivisor)
 }
 
-// Draw the bottom text onto the meme.
-func drawBottomBanner(ctx *gg.Context, text string) {
+// BottomBanner draws the bottom text onto the meme.
+func BottomBanner(ctx *gg.Context, text string) {
 	x := float64(ctx.Width()) / 2
 	y := float64(ctx.Height()) - imageMargin
 	drawText(ctx, text, x, y, 0.5, 1.0, bottomImageDivisor)

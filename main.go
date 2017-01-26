@@ -7,26 +7,29 @@ import (
 
 	"github.com/nomad-software/meme/cli"
 	"github.com/nomad-software/meme/image"
-	"github.com/nomad-software/meme/image/renderer"
 	"github.com/nomad-software/meme/output"
 )
 
 func main() {
+	opt := cli.ParseOptions()
 
-	options := cli.ParseOptions()
+	if opt.Help {
+		opt.PrintUsage()
 
-	if options.Help {
-		options.PrintUsage()
+	} else if opt.Valid() {
+		st := image.Load(opt)
 
-	} else if options.Valid() {
-		img := image.Load(options.Image)
-		img = renderer.Render(options, img)
+		if opt.Anim && st.IsGif() {
+			st = image.RenderGif(opt, st)
+		} else {
+			st = image.RenderImage(opt, st)
+		}
 
-		if options.ClientID != "" {
-			url := image.Upload(options, img)
+		if opt.ClientID != "" {
+			url := image.Upload(opt, st)
 			output.Info(url)
 		} else {
-			file := image.Save(options, img)
+			file := image.Save(opt, st)
 			output.Info(file)
 		}
 	}

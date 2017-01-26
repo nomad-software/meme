@@ -1,17 +1,14 @@
 package image
 
 import (
-	"bufio"
-	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"image"
-	"image/png"
 	"io/ioutil"
 	"net/http"
 	"strings"
 
 	"github.com/nomad-software/meme/cli"
+	"github.com/nomad-software/meme/image/stream"
 	"github.com/nomad-software/meme/output"
 )
 
@@ -20,22 +17,9 @@ const (
 )
 
 // Upload the image.
-func Upload(opt cli.Options, img image.Image) string {
-	stream := encode(img)
-	base64 := base64.StdEncoding.EncodeToString(stream)
-
+func Upload(opt cli.Options, st stream.Stream) string {
+	base64 := base64.StdEncoding.EncodeToString(st.Bytes())
 	return upload(opt, base64)
-}
-
-// Encode the image to a byte stream.
-func encode(img image.Image) []byte {
-	var buffer bytes.Buffer
-
-	writer := bufio.NewWriter(&buffer)
-	png.Encode(writer, img)
-	writer.Flush()
-
-	return buffer.Bytes()
 }
 
 // Perform the request to the storage provider.
