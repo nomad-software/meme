@@ -18,7 +18,7 @@
 * Automatically upload to [imgur.com](http://imgur.com/) (when passed a client id)
 * Works on Linux, Mac and Windows
 
-## Example
+## Simple example
 
 To create a meme use the following command. The image can be an built-in
 template, a URL or the path to a local file.
@@ -54,7 +54,7 @@ Run the following command for help and to list all of the available built-in tem
 meme -help
 ```
 
-## Examples
+## Other examples
 
 ```
 meme -i brace-yourselves -t "brace yourselves|the memes are coming"
@@ -62,18 +62,23 @@ meme -i brace-yourselves -t "brace yourselves|the memes are coming"
 
 ![Brace yourselves](http://i.imgur.com/Bn1ANs5.png)
 
+---
+
 ```
 meme -gif -max -i http://www.reactiongifs.com/r/trmp.gif -t "|when somebody mentions china"
 ```
 
 ![When somebody mentions china](http://i.imgur.com/0aV1nfo.gif)
 
+---
 
 ```
 meme -shake -i kirk-khan -t "|khaaaaan"
 ```
 
 ![khaaaaan](http://i.imgur.com/PpGTRvN.gif)
+
+---
 
 ## Built-in templates
 
