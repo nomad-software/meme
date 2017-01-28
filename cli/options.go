@@ -38,6 +38,7 @@ type Options struct {
 	ImageType string
 	MaxAnim   bool
 	OutName   string
+	Shake     bool
 	Top       string
 }
 
@@ -49,11 +50,12 @@ func ParseOptions() Options {
 	flag.BoolVar(&opt.Help, "h", false, "Show help.")
 	flag.BoolVar(&opt.Help, "help", false, "Show help.")
 	flag.StringVar(&opt.ClientID, "cid", "", "The client id of an application registered with imgur.com. If specified, the new meme will be uploaded to imgur.com instead of being saved locally. (See README for full details.)")
-	flag.StringVar(&opt.Image, "i", "", "One of the built-in templates, a URL or the path to a local file (gif, jpeg or png.) You can also use '-' to read an image from stdin.")
+	flag.StringVar(&opt.Image, "i", "", "A built-in templates, a URL or the path to a local file (gif, jpeg or png.) You can also use '-' to read an image from stdin.")
 	flag.StringVar(&opt.OutName, "o", "", "The optional name of the output file. If omitted, a temporary file will be created.")
 	flag.StringVar(&text, "t", "", "The meme text. Separate the top and bottom banners using a pipe '|' character.")
-	flag.BoolVar(&opt.Anim, "gif", false, "If the passed image is a gif, animations will be preserved and the output will be a gif. Does nothing for other image types.")
-	flag.BoolVar(&opt.MaxAnim, "max", false, "Use with -gif option to reduce image size at max quality if it occurs. This is at the expense of file size.")
+	flag.BoolVar(&opt.Anim, "gif", false, "Gif animations will be preserved and the output will be a gif. Does nothing for other image types.")
+	flag.BoolVar(&opt.MaxAnim, "max", false, "Use with -gif to output at max quality. This is at the expense of file size.")
+	flag.BoolVar(&opt.Shake, "shake", false, "Shake the image to intensify it. Always outputs a gif.")
 	flag.Parse()
 
 	parsed := strings.Split(text, "|")
@@ -109,9 +111,18 @@ func (opt *Options) PrintUsage() {
 
 	fmt.Println("  Templates")
 	fmt.Println("")
-	for _, name := range imageIds {
-		color.Cyan("    " + name)
+	for x, name := range imageIds {
+		if ((x + 1) % 3) == 0 {
+			fmt.Println(color.CyanString("%s", name))
+		} else {
+			fmt.Print(color.CyanString("    %-28s", name))
+		}
 	}
+
+	if len(imageIds)%3 != 0 {
+		fmt.Println("")
+	}
+
 	fmt.Println("")
 
 	fmt.Println("  Examples")

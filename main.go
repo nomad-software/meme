@@ -18,12 +18,7 @@ func main() {
 
 	} else if opt.Valid() {
 		st := image.Load(opt)
-
-		if opt.Anim && st.IsGif() {
-			st = image.RenderGif(opt, st)
-		} else {
-			st = image.RenderImage(opt, st)
-		}
+		st = image.RenderImage(opt, st)
 
 		if opt.ClientID != "" {
 			url := image.Upload(opt, st)

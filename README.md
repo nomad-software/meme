@@ -13,6 +13,7 @@
 * Create memes from image URL's
 * Create memes from local image files
 * Supports drawing on animated gifs
+* Supports intensifing images by shaking them slightly
 * Resizes oversized images
 * Automatically upload to [imgur.com](http://imgur.com/) (when passed a client id)
 * Works on Linux, Mac and Windows
@@ -45,23 +46,34 @@ id, follow these steps.
 3. Once registered, you get a client id for use when invoking the command. See `meme -help`
 4. [Read the rate limits](https://api.imgur.com/#limits)
 
-## Advanced usage
-
-If you wish to automatically open a generated meme, the output of the command
-can be piped into other command line tools. For example, to print the location
-of the meme and automatically open it, use the following command.
-
-```
-meme -i http://i.imgur.com/FsWetC0.jpg -t "|China" | tee /dev/tty | xargs xdg-open
-```
-
 ## Help
 
-Run the following command for help and to list all of the available templates.
+Run the following command for help and to list all of the available built-in templates.
 
 ```
 meme -help
 ```
+
+## Examples
+
+```
+meme -i brace-yourselves -t "brace yourselves|the memes are coming"
+```
+
+![Brace yourselves](http://i.imgur.com/Bn1ANs5.png)
+
+```
+meme -gif -max -i http://www.reactiongifs.com/r/trmp.gif -t "|when somebody mentions china"
+```
+
+![When somebody mentions china](http://i.imgur.com/0aV1nfo.gif)
+
+
+```
+meme -shake -i kirk-khan -t "|khaaaaan"
+```
+
+![khaaaaan](http://i.imgur.com/PpGTRvN.gif)
 
 ## Built-in templates
 
