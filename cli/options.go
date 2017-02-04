@@ -47,15 +47,15 @@ func ParseOptions() Options {
 	var opt Options
 	var text string
 
-	flag.BoolVar(&opt.Help, "h", false, "Show help.")
-	flag.BoolVar(&opt.Help, "help", false, "Show help.")
-	flag.StringVar(&opt.ClientID, "cid", "", "The client id of an application registered with imgur.com.\n        If specified, the new meme will be uploaded to imgur.com instead of being saved locally.\n        (See README for full details.)")
-	flag.StringVar(&opt.Image, "i", "", "A built-in templates, a URL or the path to a local file (gif, jpeg or png.)\n        You can also use '-' to read an image from stdin.")
-	flag.StringVar(&opt.OutName, "o", "", "The optional name of the output file. If omitted, a temporary file will be created.")
-	flag.StringVar(&text, "t", "", "The meme text. Separate the top and bottom banners using a pipe '|' character.")
-	flag.BoolVar(&opt.Anim, "gif", false, "Gif animations will be preserved and the output will be a gif.\n        Does nothing for other image types.")
-	flag.BoolVar(&opt.MaxAnim, "max", false, "Use with -gif to output at max quality. This is at the expense of file size.")
-	flag.BoolVar(&opt.Shake, "shake", false, "Shake the image to intensify it. Always outputs a gif.")
+	flag.BoolVar(&opt.Help, "h", false, "Show help.\n")
+	flag.BoolVar(&opt.Help, "help", false, "Show help.\n")
+	flag.StringVar(&opt.ClientID, "cid", "", "The client id of an application registered with imgur.com.\n        If specified, the new meme will be uploaded to imgur.com.\n        (See README for full details.)\n")
+	flag.StringVar(&opt.Image, "i", "", "A built-in template, a URL or the path to a local file.\n        You can also use '-' to read an image from stdin.\n")
+	flag.StringVar(&opt.OutName, "o", "", "The optional name of the output file.\n        If omitted, a temporary file will be created.\n")
+	flag.StringVar(&text, "t", "", "The meme text. Separate the top and bottom banners using a pipe '|'.\n")
+	flag.BoolVar(&opt.Anim, "gif", false, "Gif animations will be preserved and the output will be a gif.\n        Does nothing for other image types.\n")
+	flag.BoolVar(&opt.MaxAnim, "max", false, "Use with -gif to output at max quality.\n        This is at the expense of file size.\n")
+	flag.BoolVar(&opt.Shake, "shake", false, "Shake the image to intensify it. Always outputs a gif.\n")
 	flag.Parse()
 
 	parsed := strings.Split(text, "|")
@@ -112,10 +112,10 @@ func (opt *Options) PrintUsage() {
 	fmt.Println("  Templates")
 	fmt.Println("")
 	for x, name := range imageIds {
-		if ((x + 1) % 3) == 0 {
+		if ((x + 1) % 2) == 0 {
 			fmt.Println(color.CyanString("%s", name))
 		} else {
-			fmt.Print(color.CyanString("    %-28s", name))
+			fmt.Print(color.CyanString("    %-30s", name))
 		}
 	}
 
