@@ -15,7 +15,7 @@ import (
 type Stream struct {
 	io.Reader
 	bytes []byte
-	index int64
+	index int
 	typ   string
 }
 
@@ -26,11 +26,11 @@ func (st *Stream) Bytes() []byte {
 
 // Read implements the io.Reader interface for the Stream.
 func (st *Stream) Read(b []byte) (n int, err error) {
-	if st.index >= int64(len(st.bytes)) {
+	if st.index >= len(st.bytes) {
 		return 0, io.EOF
 	}
 	n = copy(b, st.bytes[st.index:])
-	st.index += int64(n)
+	st.index += n
 	return
 }
 
