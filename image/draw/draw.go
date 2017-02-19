@@ -11,12 +11,12 @@ import (
 )
 
 const (
-	fontBorderRadius   = 3.0  // px
-	fontLeading        = 1.4  // percentage
-	maxFontSize        = 75.0 // pts
-	topTextDivisor     = 5.0  // divisor
-	bottomImageDivisor = 3.75 // divisor
-	imageMargin        = 18.0 // px
+	fontBorderRadius  = 3.0  // px
+	fontLeading       = 1.4  // percentage
+	maxFontSize       = 75.0 // pts
+	topTextDivisor    = 5.0  // divisor
+	bottomTextDivisor = 3.75 // divisor
+	imageMargin       = 18.0 // px
 )
 
 // NewContext creates a new context for the passed image
@@ -35,7 +35,7 @@ func TopBanner(ctx *gg.Context, text string) {
 func BottomBanner(ctx *gg.Context, text string) {
 	x := float64(ctx.Width()) / 2
 	y := float64(ctx.Height()) - imageMargin
-	drawText(ctx, text, x, y, 0.5, 1.0, bottomImageDivisor)
+	drawText(ctx, text, x, y, 0.5, 1.0, bottomTextDivisor)
 }
 
 // Draw text onto the meme.
