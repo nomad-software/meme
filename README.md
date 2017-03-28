@@ -65,7 +65,7 @@ meme -i brace-yourselves -t "brace yourselves|the memes are coming"
 ---
 
 ```
-meme -gif -max -i http://www.reactiongifs.com/r/trmp.gif -t "|when somebody mentions china"
+meme -gif -i http://www.reactiongifs.com/r/trmp.gif -t "|when somebody mentions china"
 ```
 
 ![When somebody mentions china](http://i.imgur.com/0aV1nfo.gif)

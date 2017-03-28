@@ -26,9 +26,6 @@ const (
 func RenderImage(opt cli.Options, st stream.Stream) stream.Stream {
 	if opt.Shake {
 		st = shake(st)
-		// Shaken images are always converted to maximum quality, so there's no
-		// need to do it again when rendering later.
-		opt.MaxAnim = false
 	}
 
 	if opt.Shake || (opt.Anim && st.IsGif()) {
@@ -255,7 +252,12 @@ type reduceInfo struct {
 func reduceGif(opt cli.Options, src *gif.GIF, maxSize int) *gif.GIF {
 	first := src.Image[0]
 	fctr := calcFactor(first, maxSize)
-	queue := make(chan reduceInfo)
+
+	// No reduction necessary.
+	if fctr == 1.0 {
+		return src
+	}
+
 	base := image.NewRGBA(first.Bounds())
 
 	for x, frame := range src.Image {
@@ -266,30 +268,14 @@ func reduceGif(opt cli.Options, src *gif.GIF, maxSize int) *gif.GIF {
 			fctr:   fctr,
 			index:  x,
 		}
-		if opt.MaxAnim {
-			src.Image[x] = processFrameReductionMax(rs)
-		} else {
-			go processFrameReduction(rs, queue)
-		}
+		src.Image[x] = processFrameReduction(rs)
 	}
 
-	if !opt.MaxAnim {
-		for range src.Image {
-			rs := <-queue
-			src.Image[rs.index] = rs.frame
-		}
-	}
-
-	close(queue)
 	return src
 }
 
 // Process resizing each gif frame at max quality.
-func processFrameReductionMax(rs reduceInfo) *image.Paletted {
-	if rs.fctr == 1.0 {
-		return rs.frame // No reduction needed.
-	}
-
+func processFrameReduction(rs reduceInfo) *image.Paletted {
 	if rs.index == 0 {
 		resBounds := reduceBounds(rs.frame.Bounds(), rs.fctr)
 		rs.config.Width = resBounds.Dx()
@@ -313,37 +299,6 @@ func processFrameReductionMax(rs reduceInfo) *image.Paletted {
 	draw.Draw(img, res.Bounds(), res, image.ZP, draw.Src)
 
 	return img
-}
-
-// Process resizing each gif frame.
-func processFrameReduction(rs reduceInfo, output chan reduceInfo) {
-	if rs.fctr == 1.0 {
-		output <- rs // No reduction needed.
-		return
-	}
-
-	resBounds := reduceBounds(rs.frame.Bounds(), rs.fctr)
-
-	if rs.index == 0 {
-		rs.config.Width = resBounds.Dx()
-		rs.config.Height = resBounds.Dy()
-	}
-
-	if resBounds.Dx() == 0 && resBounds.Dy() == 0 {
-		output <- rs // Empty frame, don't change or can cause corruption.
-		return
-	}
-
-	w := uint(resBounds.Bounds().Dx())
-	h := uint(resBounds.Bounds().Dy())
-
-	// Resize the frame.
-	res := resize.Resize(w, h, rs.frame, resize.NearestNeighbor)
-	img := image.NewPaletted(resBounds, rs.frame.Palette)
-	draw.Draw(img, img.Bounds(), res, image.ZP, draw.Src)
-
-	rs.frame = img
-	output <- rs
 }
 
 // Calculate the reduction factor from a desired maximum size.

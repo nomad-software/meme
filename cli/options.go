@@ -36,7 +36,6 @@ type Options struct {
 	Help      bool
 	Image     string
 	ImageType string
-	MaxAnim   bool
 	OutName   string
 	Shake     bool
 	Top       string
@@ -54,7 +53,6 @@ func ParseOptions() Options {
 	flag.StringVar(&opt.OutName, "o", "", "The optional name of the output file.\n        If omitted, a temporary file will be created.\n")
 	flag.StringVar(&text, "t", "", "The meme text. Separate the top and bottom banners using a pipe '|'.\n")
 	flag.BoolVar(&opt.Anim, "gif", false, "Gif animations will be preserved and the output will be a gif.\n        Does nothing for other image types.\n")
-	flag.BoolVar(&opt.MaxAnim, "max", false, "Use with -gif to output at max quality.\n        This is at the expense of file size.\n")
 	flag.BoolVar(&opt.Shake, "shake", false, "Shake the image to intensify it. Always outputs a gif.\n")
 	flag.Parse()
 
