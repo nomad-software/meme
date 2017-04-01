@@ -125,3 +125,9 @@ func readStdin() io.Reader {
 
 	return bytes.NewReader(st)
 }
+
+// Decal returns the named decal as a stream.
+func Decal(name string) stream.Stream {
+	st, _ := data.Asset(name)
+	return stream.NewStream(bytes.NewReader(st))
+}

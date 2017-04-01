@@ -11,30 +11,85 @@ import (
 
 	"github.com/nfnt/resize"
 	"github.com/nomad-software/meme/cli"
+	"github.com/nomad-software/meme/data"
 	gfx "github.com/nomad-software/meme/image/draw"
 	"github.com/nomad-software/meme/image/stream"
 )
 
 const (
 	maxImageSize   = 600 // px
-	shakeFrames    = 10
-	shakeIntensity = 8 // px
-	shakeDelay     = 2 // 100ths of a second
+	shakeDelay     = 2   // 100ths of a second
+	shakeFrames    = 10  // Number of frames to create when shaking static images
+	shakeIntensity = 8   // px
 )
 
 // RenderImage performs the graphical manipulation of the image.
 func RenderImage(opt cli.Options, st stream.Stream) stream.Stream {
-	if opt.Shake {
+	if opt.Trigger {
+		st = shake(st)
+		st = trigger(st)
+	} else if opt.Shake {
 		st = shake(st)
 	}
 
-	if opt.Shake || (opt.Anim && st.IsGif()) {
+	if opt.Trigger || opt.Shake || (opt.Anim && st.IsGif()) {
 		st = renderGif(opt, st)
 	} else {
 		st = renderImage(opt, st)
 	}
 
 	return st
+}
+
+// Trigger adds the triggered banner.
+func trigger(st stream.Stream) stream.Stream {
+	src := st.DecodeGif()
+	width := uint(src.Config.Width + (shakeIntensity * 2))
+	ds := Decal(data.TriggeredDecal)
+	decal := resize.Resize(width, 0, ds.DecodeImage(), resize.NearestNeighbor)
+	queue := make(chan triggerInfo)
+
+	for x, frame := range src.Image {
+		ti := triggerInfo{
+			frame: frame,
+			decal: decal,
+			index: x,
+		}
+		go processTrigger(ti, queue)
+	}
+
+	for range src.Image {
+		ti := <-queue
+		src.Image[ti.index] = ti.frame
+	}
+
+	close(queue)
+	return stream.EncodeGif(src)
+}
+
+// A unit of work containing frame information for triggering gifs.
+type triggerInfo struct {
+	frame *image.Paletted
+	decal image.Image
+	index int
+}
+
+// Draw the triggered banner on the frame.
+func processTrigger(ti triggerInfo, output chan triggerInfo) {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	rx := r.Intn(shakeIntensity*2) - shakeIntensity
+	ry := r.Intn(shakeIntensity*2) - shakeIntensity
+
+	fHeight := ti.frame.Bounds().Dy()
+	dHeight := ti.decal.Bounds().Dy()
+
+	x := shakeIntensity + rx
+	y := (fHeight - (dHeight - shakeIntensity)) + ry
+
+	point := image.Point{x, -y}
+
+	draw.FloydSteinberg.Draw(ti.frame, ti.frame.Bounds(), ti.decal, point)
+	output <- ti
 }
 
 // Shake randomly shakes an image.
@@ -57,9 +112,9 @@ func pointShaker() func() image.Point {
 
 // Create a rectangle to crop the shaking image to not expose the borders.
 func shakeBounds(b image.Rectangle) image.Rectangle {
-	x1 := b.Bounds().Max.X - shakeIntensity*2
-	y1 := b.Bounds().Max.Y - shakeIntensity*2
-	return image.Rect(0, 0, x1, y1)
+	x := b.Bounds().Max.X - shakeIntensity*2
+	y := b.Bounds().Max.Y - shakeIntensity*2
+	return image.Rect(0, 0, x, y)
 }
 
 // shakeGif randomly shakes a gif.

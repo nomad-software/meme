@@ -9,4 +9,7 @@ const (
 
 	// Font is the location of the built-in font.
 	Font = "data/fonts/impact.ttf"
+
+	// TriggeredDecal is the banner used on triggered memes.
+	TriggeredDecal = "data/decals/triggered.jpg"
 )

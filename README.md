@@ -80,6 +80,14 @@ meme -shake -i kirk-khan -t "|khaaaaan"
 
 ---
 
+```
+meme -trigger -i https://i.giphy.com/3o7abKGM3Xa70I7jCU.gif
+```
+
+![triggered](http://i.imgur.com/D1pYHmC.gif)
+
+---
+
 ## Built-in templates
 
 To create a meme using one of the built-in templates, use one of the following

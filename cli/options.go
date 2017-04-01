@@ -39,6 +39,7 @@ type Options struct {
 	OutName   string
 	Shake     bool
 	Top       string
+	Trigger   bool
 }
 
 // ParseOptions parses the command line options.
@@ -54,6 +55,7 @@ func ParseOptions() Options {
 	flag.StringVar(&text, "t", "", "The meme text. Separate the top and bottom banners using a pipe '|'.\n")
 	flag.BoolVar(&opt.Anim, "gif", false, "Gif animations will be preserved and the output will be a gif.\n        Does nothing for other image types.\n")
 	flag.BoolVar(&opt.Shake, "shake", false, "Shake the image to intensify it. Always outputs a gif.\n")
+	flag.BoolVar(&opt.Trigger, "trigger", false, "Shake the image and add a triggered banner. Always outputs a gif.\n")
 	flag.Parse()
 
 	parsed := strings.Split(text, "|")
@@ -85,10 +87,6 @@ func (opt *Options) Valid() bool {
 		if !strings.HasSuffix(strings.ToLower(opt.OutName), ".gif") {
 			output.Error("The output file name must have the suffix of .gif")
 		}
-	}
-
-	if (opt.Top + opt.Bottom) == "" {
-		output.Error("At least one piece of text is required")
 	}
 
 	return true
