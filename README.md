@@ -14,6 +14,7 @@
 * Create memes from local image files
 * Supports drawing on animated gifs
 * Supports intensifing images by shaking them slightly
+* Supports adding the 'triggered' banner
 * Resizes oversized images
 * Automatically upload to [imgur.com](http://imgur.com/) (when passed a client id)
 * Works on Linux, Mac and Windows
