@@ -13,7 +13,7 @@ import (
 const (
 	fontBorderRadius  = 3.0  // px
 	fontLeading       = 1.4  // percentage
-	maxFontSize       = 75.0 // pts
+	maxFontSize       = 85.0 // pts
 	topTextDivisor    = 5.0  // divisor
 	bottomTextDivisor = 3.75 // divisor
 	imageMargin       = 18.0 // px

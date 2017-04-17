@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	maxImageSize   = 600 // px
+	maxImageSize   = 650 // px
 	shakeDelay     = 2   // 100ths of a second
 	shakeFrames    = 10  // Number of frames to create when shaking static images
 	shakeIntensity = 8   // px
