@@ -109,9 +109,9 @@ func (opt *Options) PrintUsage() {
 	fmt.Println("")
 	for x, name := range imageIds {
 		if ((x + 1) % 2) == 0 {
-			fmt.Println(color.CyanString("%s", name))
+			fmt.Fprintln(output.Stdout, color.CyanString("%s", name))
 		} else {
-			fmt.Print(color.CyanString("    %-30s", name))
+			fmt.Fprint(output.Stdout, color.CyanString("    %-30s", name))
 		}
 	}
 
