@@ -8,6 +8,6 @@ require (
 	github.com/mattn/go-isatty v0.0.4 // indirect
 	github.com/mitchellh/go-homedir v1.0.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
-	golang.org/x/image v0.0.0-20180926015637-991ec62608f3 // indirect
-	golang.org/x/sys v0.0.0-20181005133103-4497e2df6f9e // indirect
+	golang.org/x/image v0.0.0-20181116024801-cd38e8056d9b // indirect
+	golang.org/x/sys v0.0.0-20181218192612-074acd46bca6 // indirect
 )
