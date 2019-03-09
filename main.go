@@ -5,6 +5,7 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 
+	_ "github.com/jteeuwen/go-bindata"
 	"github.com/nomad-software/meme/cli"
 	"github.com/nomad-software/meme/image"
 	"github.com/nomad-software/meme/output"

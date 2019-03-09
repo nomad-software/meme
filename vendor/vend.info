@@ -1,6 +1,7 @@
 github.com/fatih/color (v1.7.0)
 github.com/fogleman/gg (v1.1.0)
 github.com/golang/freetype (v0.0.0-20170609003504-e2365dfdc4a0)
+github.com/jteeuwen/go-bindata (v3.0.7+incompatible)
 github.com/mattn/go-colorable (v0.0.9)
 github.com/mattn/go-isatty (v0.0.4)
 github.com/mitchellh/go-homedir (v1.0.0)
