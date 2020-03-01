@@ -127,6 +127,7 @@ id's with the `-i` flag. (You can also list these using the `meme -help` command
 * [laughing-men-in-suits](https://github.com/nomad-software/meme/blob/master/data/images/laughing-men-in-suits.jpg)
 * [look-at-me](https://github.com/nomad-software/meme/blob/master/data/images/look-at-me.jpg)
 * [minor-mistake-marvin](https://github.com/nomad-software/meme/blob/master/data/images/minor-mistake-marvin.jpg)
+* [mocking-spongebob](https://github.com/nomad-software/meme/blob/master/data/images/mocking-spongebob.jpg)
 * [morpheus](https://github.com/nomad-software/meme/blob/master/data/images/morpheus.jpg)
 * [most-interesting-man](https://github.com/nomad-software/meme/blob/master/data/images/most-interesting-man.jpg)
 * [none-of-my-business](https://github.com/nomad-software/meme/blob/master/data/images/none-of-my-business.jpg)

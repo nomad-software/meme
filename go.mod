@@ -1,5 +1,7 @@
 module github.com/nomad-software/meme
 
+go 1.14
+
 require (
 	github.com/fatih/color v1.7.0
 	github.com/fogleman/gg v1.1.0
