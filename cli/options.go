@@ -77,13 +77,13 @@ func (opt *Options) Valid() bool {
 		output.Error("An image is required")
 	}
 
-	if !opt.Anim && opt.OutName != "" {
+	if !(opt.Anim || opt.Trigger || opt.Shake) && opt.OutName != "" {
 		if !strings.HasSuffix(strings.ToLower(opt.OutName), ".png") {
 			output.Error("The output file name must have the suffix of .png")
 		}
 	}
 
-	if opt.Anim && opt.OutName != "" {
+	if (opt.Anim || opt.Trigger || opt.Shake) && opt.OutName != "" {
 		if !strings.HasSuffix(strings.ToLower(opt.OutName), ".gif") {
 			output.Error("The output file name must have the suffix of .gif")
 		}
