@@ -15,6 +15,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"syscall"
 	"testing"
 	"time"
@@ -98,6 +99,27 @@ func TestErrnoSignalName(t *testing.T) {
 	}
 }
 
+func TestSignalNum(t *testing.T) {
+	testSignals := []struct {
+		name string
+		want syscall.Signal
+	}{
+		{"SIGHUP", syscall.SIGHUP},
+		{"SIGPIPE", syscall.SIGPIPE},
+		{"SIGSEGV", syscall.SIGSEGV},
+		{"NONEXISTS", 0},
+	}
+	for _, ts := range testSignals {
+		t.Run(fmt.Sprintf("%s/%d", ts.name, ts.want), func(t *testing.T) {
+			got := unix.SignalNum(ts.name)
+			if got != ts.want {
+				t.Errorf("SignalNum(%s) returned %d, want %d", ts.name, got, ts.want)
+			}
+		})
+
+	}
+}
+
 func TestFcntlInt(t *testing.T) {
 	t.Parallel()
 	file, err := ioutil.TempFile("", "TestFnctlInt")
@@ -146,13 +168,31 @@ func TestPassFD(t *testing.T) {
 	if runtime.GOOS == "darwin" && (runtime.GOARCH == "arm" || runtime.GOARCH == "arm64") {
 		t.Skip("cannot exec subprocess on iOS, skipping test")
 	}
-	if runtime.GOOS == "aix" {
-		t.Skip("getsockname issue on AIX 7.2 tl1, skipping test")
-	}
 
 	if os.Getenv("GO_WANT_HELPER_PROCESS") == "1" {
 		passFDChild()
 		return
+	}
+
+	if runtime.GOOS == "aix" {
+		// Unix network isn't properly working on AIX
+		// 7.2 with Technical Level < 2
+		out, err := exec.Command("oslevel", "-s").Output()
+		if err != nil {
+			t.Skipf("skipping on AIX because oslevel -s failed: %v", err)
+		}
+
+		if len(out) < len("7200-XX-ZZ-YYMM") { // AIX 7.2, Tech Level XX, Service Pack ZZ, date YYMM
+			t.Skip("skipping on AIX because oslevel -s hasn't the right length")
+		}
+		aixVer := string(out[:4])
+		tl, err := strconv.Atoi(string(out[5:7]))
+		if err != nil {
+			t.Skipf("skipping on AIX because oslevel -s output cannot be parsed: %v", err)
+		}
+		if aixVer < "7200" || (aixVer == "7200" && tl < 2) {
+			t.Skip("skipped on AIX versions previous to 7.2 TL 2")
+		}
 	}
 
 	tempDir, err := ioutil.TempDir("", "TestPassFD")
@@ -337,6 +377,12 @@ func TestRlimit(t *testing.T) {
 	}
 	set := rlimit
 	set.Cur = set.Max - 1
+	if runtime.GOOS == "darwin" && set.Cur > 10240 {
+		// The max file limit is 10240, even though
+		// the max returned by Getrlimit is 1<<63-1.
+		// This is OPEN_MAX in sys/syslimits.h.
+		set.Cur = 10240
+	}
 	err = unix.Setrlimit(unix.RLIMIT_NOFILE, &set)
 	if err != nil {
 		t.Fatalf("Setrlimit: set failed: %#v %v", set, err)
@@ -376,6 +422,14 @@ func TestSeekFailure(t *testing.T) {
 	}
 }
 
+func TestSetsockoptString(t *testing.T) {
+	// should not panic on empty string, see issue #31277
+	err := unix.SetsockoptString(-1, 0, 0, "")
+	if err == nil {
+		t.Fatalf("SetsockoptString: did not fail")
+	}
+}
+
 func TestDup(t *testing.T) {
 	file, err := ioutil.TempFile("", "TestDup")
 	if err != nil {
@@ -390,14 +444,24 @@ func TestDup(t *testing.T) {
 		t.Fatalf("Dup: %v", err)
 	}
 
-	err = unix.Dup2(newFd, newFd+1)
+	// Create and reserve a file descriptor.
+	// Dup2 automatically closes it before reusing it.
+	nullFile, err := os.Open("/dev/null")
+	if err != nil {
+		t.Fatal(err)
+	}
+	dupFd := int(file.Fd())
+	err = unix.Dup2(newFd, dupFd)
 	if err != nil {
 		t.Fatalf("Dup2: %v", err)
 	}
+	// Keep the dummy file open long enough to not be closed in
+	// its finalizer.
+	runtime.KeepAlive(nullFile)
 
 	b1 := []byte("Test123")
 	b2 := make([]byte, 7)
-	_, err = unix.Write(newFd+1, b1)
+	_, err = unix.Write(dupFd, b1)
 	if err != nil {
 		t.Fatalf("Write to dup2 fd failed: %v", err)
 	}
@@ -420,6 +484,7 @@ func TestPoll(t *testing.T) {
 		t.Skip("mkfifo syscall is not available on android and iOS, skipping test")
 	}
 
+	defer chtmpdir(t)()
 	f, cleanup := mktmpfifo(t)
 	defer cleanup()
 
@@ -444,6 +509,76 @@ func TestPoll(t *testing.T) {
 	if n != 0 {
 		t.Errorf("Poll: wrong number of events: got %v, expected %v", n, 0)
 		return
+	}
+}
+
+func TestSelect(t *testing.T) {
+	for {
+		n, err := unix.Select(0, nil, nil, nil, &unix.Timeval{Sec: 0, Usec: 0})
+		if err == unix.EINTR {
+			t.Logf("Select interrupted")
+			continue
+		} else if err != nil {
+			t.Fatalf("Select: %v", err)
+		}
+		if n != 0 {
+			t.Fatalf("Select: got %v ready file descriptors, expected 0", n)
+		}
+		break
+	}
+
+	dur := 250 * time.Millisecond
+	tv := unix.NsecToTimeval(int64(dur))
+	var took time.Duration
+	for {
+		start := time.Now()
+		n, err := unix.Select(0, nil, nil, nil, &tv)
+		took = time.Since(start)
+		if err == unix.EINTR {
+			t.Logf("Select interrupted after %v", took)
+			continue
+		} else if err != nil {
+			t.Fatalf("Select: %v", err)
+		}
+		if n != 0 {
+			t.Fatalf("Select: got %v ready file descriptors, expected 0", n)
+		}
+		break
+	}
+
+	// On some BSDs the actual timeout might also be slightly less than the requested.
+	// Add an acceptable margin to avoid flaky tests.
+	if took < dur*2/3 {
+		t.Errorf("Select: got %v timeout, expected at least %v", took, dur)
+	}
+
+	rr, ww, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rr.Close()
+	defer ww.Close()
+
+	if _, err := ww.Write([]byte("HELLO GOPHER")); err != nil {
+		t.Fatal(err)
+	}
+
+	rFdSet := &unix.FdSet{}
+	fd := int(rr.Fd())
+	rFdSet.Set(fd)
+
+	for {
+		n, err := unix.Select(fd+1, rFdSet, nil, nil, nil)
+		if err == unix.EINTR {
+			t.Log("Select interrupted")
+			continue
+		} else if err != nil {
+			t.Fatalf("Select: %v", err)
+		}
+		if n != 1 {
+			t.Fatalf("Select: got %v ready file descriptors, expected 1", n)
+		}
+		break
 	}
 }
 
@@ -545,8 +680,23 @@ func TestFstatat(t *testing.T) {
 		t.Fatalf("Fstatat: %v", err)
 	}
 
-	if st1 != st2 {
-		t.Errorf("Fstatat: returned stat does not match Lstat")
+	if st2.Dev != st1.Dev {
+		t.Errorf("Fstatat: got dev %v, expected %v", st2.Dev, st1.Dev)
+	}
+	if st2.Ino != st1.Ino {
+		t.Errorf("Fstatat: got ino %v, expected %v", st2.Ino, st1.Ino)
+	}
+	if st2.Mode != st1.Mode {
+		t.Errorf("Fstatat: got mode %v, expected %v", st2.Mode, st1.Mode)
+	}
+	if st2.Uid != st1.Uid {
+		t.Errorf("Fstatat: got uid %v, expected %v", st2.Uid, st1.Uid)
+	}
+	if st2.Gid != st1.Gid {
+		t.Errorf("Fstatat: got gid %v, expected %v", st2.Gid, st1.Gid)
+	}
+	if st2.Size != st1.Size {
+		t.Errorf("Fstatat: got size %v, expected %v", st2.Size, st1.Size)
 	}
 }
 
@@ -578,7 +728,8 @@ func TestFchmodat(t *testing.T) {
 	didChmodSymlink := true
 	err = unix.Fchmodat(unix.AT_FDCWD, "symlink1", uint32(mode), unix.AT_SYMLINK_NOFOLLOW)
 	if err != nil {
-		if (runtime.GOOS == "android" || runtime.GOOS == "linux" || runtime.GOOS == "solaris") && err == unix.EOPNOTSUPP {
+		if (runtime.GOOS == "android" || runtime.GOOS == "linux" ||
+			runtime.GOOS == "solaris" || runtime.GOOS == "illumos") && err == unix.EOPNOTSUPP {
 			// Linux and Illumos don't support flags != 0
 			didChmodSymlink = false
 		} else {
@@ -614,6 +765,68 @@ func TestMkdev(t *testing.T) {
 	}
 	if unix.Minor(dev) != minor {
 		t.Errorf("Minor(%#x) == %d, want %d", dev, unix.Minor(dev), minor)
+	}
+}
+
+func TestRenameat(t *testing.T) {
+	defer chtmpdir(t)()
+
+	from, to := "renamefrom", "renameto"
+
+	touch(t, from)
+
+	err := unix.Renameat(unix.AT_FDCWD, from, unix.AT_FDCWD, to)
+	if err != nil {
+		t.Fatalf("Renameat: unexpected error: %v", err)
+	}
+
+	_, err = os.Stat(to)
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = os.Stat(from)
+	if err == nil {
+		t.Errorf("Renameat: stat of renamed file %q unexpectedly succeeded", from)
+	}
+}
+
+func TestUtimesNanoAt(t *testing.T) {
+	defer chtmpdir(t)()
+
+	symlink := "symlink1"
+	os.Remove(symlink)
+	err := os.Symlink("nonexisting", symlink)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Some filesystems only support microsecond resolution. Account for
+	// that in Nsec.
+	ts := []unix.Timespec{
+		{Sec: 1111, Nsec: 2000},
+		{Sec: 3333, Nsec: 4000},
+	}
+	err = unix.UtimesNanoAt(unix.AT_FDCWD, symlink, ts, unix.AT_SYMLINK_NOFOLLOW)
+	if err != nil {
+		t.Fatalf("UtimesNanoAt: %v", err)
+	}
+
+	var st unix.Stat_t
+	err = unix.Lstat(symlink, &st)
+	if err != nil {
+		t.Fatalf("Lstat: %v", err)
+	}
+
+	// Only check Mtim, Atim might not be supported by the underlying filesystem
+	expected := ts[1]
+	if st.Mtim.Nsec == 0 {
+		// Some filesystems only support 1-second time stamp resolution
+		// and will always set Nsec to 0.
+		expected.Nsec = 0
+	}
+	if st.Mtim != expected {
+		t.Errorf("UtimesNanoAt: wrong mtime: got %v, expected %v", st.Mtim, expected)
 	}
 }
 
