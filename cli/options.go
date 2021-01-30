@@ -18,11 +18,12 @@ var (
 
 // Initialise the package.
 func init() {
-	for _, asset := range data.AssetNames() {
-		if strings.HasPrefix(asset, data.ImagePath) {
-			id := strings.TrimSuffix(filepath.Base(asset), data.ImageExtension)
-			imageIds = append(imageIds, id)
-		}
+	images, err := data.Files.ReadDir(data.ImagePath)
+	output.OnError(err, "Could not read embedded images")
+
+	for _, image := range images {
+		id := strings.TrimSuffix(filepath.Base(image.Name()), data.ImageExtension)
+		imageIds = append(imageIds, id)
 	}
 
 	sort.Sort(sort.StringSlice(imageIds))

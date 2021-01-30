@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -22,11 +23,12 @@ var (
 
 // Initialise the package.
 func init() {
-	for _, asset := range data.AssetNames() {
-		if strings.HasPrefix(asset, data.ImagePath) {
-			id := strings.TrimSuffix(filepath.Base(asset), data.ImageExtension)
-			imageMap[id] = asset
-		}
+	images, err := data.Files.ReadDir(data.ImagePath)
+	output.OnError(err, "Could not read embedded images")
+
+	for _, image := range images {
+		id := strings.TrimSuffix(filepath.Base(image.Name()), data.ImageExtension)
+		imageMap[id] = path.Join(data.ImagePath, image.Name())
 	}
 }
 
@@ -63,8 +65,10 @@ func isAsset(id string) bool {
 // Load and return an embedded asset (image) by id.
 // The id is assumed to exist.
 func loadAsset(id string) io.Reader {
-	asset, _ := imageMap[id]
-	st, _ := data.Asset(asset)
+	image, _ := imageMap[id]
+
+	st, err := data.Files.ReadFile(image)
+	output.OnError(err, "Could not read embedded image")
 
 	return bytes.NewReader(st)
 }
@@ -128,6 +132,8 @@ func readStdin() io.Reader {
 
 // Decal returns the named decal as a stream.
 func Decal(name string) stream.Stream {
-	st, _ := data.Asset(name)
+	st, err := data.Files.ReadFile(name)
+	output.OnError(err, "Could not read embedded decal")
+
 	return stream.NewStream(bytes.NewReader(st))
 }

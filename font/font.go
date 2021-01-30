@@ -17,14 +17,13 @@ var (
 func init() {
 	Path = filepath.Join(os.TempDir(), filepath.Base(data.Font))
 
-	_, err := os.Stat(Path)
-	if err != nil {
+	if _, err := os.Stat(Path); os.IsNotExist(err) {
 		file, err := os.Create(Path)
 		output.OnError(err, "Could not create font file")
 		defer file.Close()
 
-		stream, err := data.Asset(data.Font)
-		output.OnError(err, "Could not extract font")
+		stream, err := data.Files.ReadFile(data.Font)
+		output.OnError(err, "Could not read embedded font")
 
 		_, err = file.Write(stream)
 		output.OnError(err, "Could not write font file")
