@@ -17,8 +17,7 @@ func checkEncoding(t *testing.T, data []byte) {
 		t.FailNow()
 	}
 	// TODO move colorable wrapping outside the test
-	c := NewNonColorable(b)
-	c.Write(data)
+	NewNonColorable(b).Write(data)
 	if b.Len() != len(data) {
 		t.Fatalf("%d bytes expected, got %d", len(data), b.Len())
 	}
@@ -61,6 +60,22 @@ func TestNonColorableNil(t *testing.T) {
 
 	if !paniced {
 		t.Fatalf("should panic")
+	}
+}
+
+func TestNonColorableESC(t *testing.T) {
+	var b bytes.Buffer
+	NewNonColorable(&b).Write([]byte{0x1b})
+	if b.Len() > 0 {
+		t.Fatalf("0 bytes expected, got %d", b.Len())
+	}
+}
+
+func TestNonColorableBadESC(t *testing.T) {
+	var b bytes.Buffer
+	NewNonColorable(&b).Write([]byte{0x1b, 0x1b})
+	if b.Len() > 0 {
+		t.Fatalf("0 bytes expected, got %d", b.Len())
 	}
 }
 
