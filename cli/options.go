@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	imageIds []string
+	ImageIds []string
 )
 
 // Initialise the package.
@@ -23,24 +23,25 @@ func init() {
 
 	for _, image := range images {
 		id := strings.TrimSuffix(filepath.Base(image.Name()), data.ImageExtension)
-		imageIds = append(imageIds, id)
+		ImageIds = append(ImageIds, id)
 	}
 
-	sort.Sort(sort.StringSlice(imageIds))
+	sort.Strings(ImageIds)
 }
 
 // Options holds the options passed on the command line.
 type Options struct {
-	Anim      bool
-	Bottom    string
-	ClientID  string
-	Help      bool
-	Image     string
-	ImageType string
-	OutName   string
-	Shake     bool
-	Top       string
-	Trigger   bool
+	Gif           bool
+	Bottom        string
+	ClientID      string
+	Help          bool
+	Image         string
+	ImageType     string
+	OutName       string
+	Shake         bool
+	Top           string
+	Trigger       bool
+	ListTemplates bool
 }
 
 // ParseOptions parses the command line options.
@@ -50,13 +51,14 @@ func ParseOptions() Options {
 
 	flag.BoolVar(&opt.Help, "h", false, "Show help.\n")
 	flag.BoolVar(&opt.Help, "help", false, "Show help.\n")
-	flag.StringVar(&opt.ClientID, "cid", "", "The client id of an application registered with imgur.com.\n        If specified, the new meme will be uploaded to imgur.com.\n        (See README for full details.)\n")
-	flag.StringVar(&opt.Image, "i", "", "A built-in template, a URL or the path to a local file.\n        You can also use '-' to read an image from stdin.\n")
-	flag.StringVar(&opt.OutName, "o", "", "The optional name of the output file.\n        If omitted, a temporary file will be created.\n")
+	flag.StringVar(&opt.ClientID, "cid", "", "The client id of an application registered with imgur.com.\nIf specified, the new meme will be uploaded to imgur.com.\n(See README for full details.)\n")
+	flag.StringVar(&opt.Image, "i", "", "A built-in template, a URL or the path to a local file.\nYou can also use '-' to read an image from stdin.\n")
+	flag.StringVar(&opt.OutName, "o", "", "The optional name of the output file.\nIf omitted, a temporary file will be created.\n")
 	flag.StringVar(&text, "t", "", "The meme text. Separate the top and bottom banners using a pipe '|'.\n")
-	flag.BoolVar(&opt.Anim, "gif", false, "Gif animations will be preserved and the output will be a gif.\n        Does nothing for other image types.\n")
+	flag.BoolVar(&opt.Gif, "gif", false, "Gif animations will be preserved and the output will be a gif.\nDoes nothing for other image types.\n")
 	flag.BoolVar(&opt.Shake, "shake", false, "Shake the image to intensify it. Always outputs a gif.\n")
 	flag.BoolVar(&opt.Trigger, "trigger", false, "Shake the image and add a triggered banner. Always outputs a gif.\n")
+	flag.BoolVar(&opt.ListTemplates, "list-templates", false, "List all of the built in templates.\n")
 	flag.Parse()
 
 	parsed := strings.Split(text, "|")
@@ -78,13 +80,13 @@ func (opt *Options) Valid() bool {
 		output.Error("An image is required")
 	}
 
-	if !(opt.Anim || opt.Trigger || opt.Shake) && opt.OutName != "" {
+	if !(opt.Gif || opt.Trigger || opt.Shake) && opt.OutName != "" {
 		if !strings.HasSuffix(strings.ToLower(opt.OutName), ".png") {
 			output.Error("The output file name must have the suffix of .png")
 		}
 	}
 
-	if (opt.Anim || opt.Trigger || opt.Shake) && opt.OutName != "" {
+	if (opt.Gif || opt.Trigger || opt.Shake) && opt.OutName != "" {
 		if !strings.HasSuffix(strings.ToLower(opt.OutName), ".gif") {
 			output.Error("The output file name must have the suffix of .gif")
 		}
@@ -108,7 +110,7 @@ func (opt *Options) PrintUsage() {
 
 	fmt.Println("  Templates")
 	fmt.Println("")
-	for x, name := range imageIds {
+	for x, name := range ImageIds {
 		if ((x + 1) % 2) == 0 {
 			fmt.Fprintln(output.Stdout, color.CyanString("%s", name))
 		} else {
@@ -116,7 +118,7 @@ func (opt *Options) PrintUsage() {
 		}
 	}
 
-	if len(imageIds)%3 != 0 {
+	if len(ImageIds)%3 != 0 {
 		fmt.Println("")
 	}
 

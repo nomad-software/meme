@@ -32,7 +32,7 @@ func RenderImage(opt cli.Options, st stream.Stream) stream.Stream {
 		st = shake(st)
 	}
 
-	if opt.Trigger || opt.Shake || (opt.Anim && st.IsGif()) {
+	if opt.Trigger || opt.Shake || (opt.Gif && st.IsGif()) {
 		st = renderGif(opt, st)
 	} else {
 		st = renderImage(opt, st)

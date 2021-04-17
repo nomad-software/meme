@@ -1,11 +1,12 @@
 package main
 
 import (
+	"fmt"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
 
-	_ "github.com/jteeuwen/go-bindata"
+	"github.com/fatih/color"
 	"github.com/nomad-software/meme/cli"
 	"github.com/nomad-software/meme/image"
 	"github.com/nomad-software/meme/output"
@@ -16,6 +17,11 @@ func main() {
 
 	if opt.Help {
 		opt.PrintUsage()
+
+	} else if opt.ListTemplates {
+		for _, id := range cli.ImageIds {
+			fmt.Fprintln(output.Stdout, color.CyanString("%s", id))
+		}
 
 	} else if opt.Valid() {
 		st := image.Load(opt)

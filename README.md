@@ -3,6 +3,8 @@
 
 [![Go report card](https://goreportcard.com/badge/github.com/nomad-software/meme)](https://goreportcard.com/report/github.com/nomad-software/meme)
 
+**Requires Go v1.16+ to compile.**
+
 ---
 
 ![Am i the only one around here?](http://i.imgur.com/WP1TAzg.png)
