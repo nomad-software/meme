@@ -5,6 +5,7 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
+	"os"
 
 	"github.com/fatih/color"
 	"github.com/nomad-software/meme/cli"
@@ -15,6 +16,12 @@ import (
 func main() {
 	opt := cli.ParseOptions()
 
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Fprintln(output.Stderr, color.RedString(r.(string)))
+			os.Exit(1)
+		}
+	}()
 	if opt.Help {
 		opt.PrintUsage()
 

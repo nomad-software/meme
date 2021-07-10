@@ -2,8 +2,6 @@ package output
 
 import (
 	"fmt"
-	"os"
-
 	"github.com/fatih/color"
 	"github.com/mattn/go-colorable"
 )
@@ -19,15 +17,13 @@ var (
 // OnError prints an error if err is not nil and exits the program.
 func OnError(err error, text string) {
 	if err != nil {
-		fmt.Fprintln(Stderr, color.RedString(text+": %s", err.Error()))
-		os.Exit(1)
+		Error(fmt.Sprintf(text+": %s", err.Error()))
 	}
 }
 
 // Error prints an error and exits the program.
 func Error(text string) {
-	fmt.Fprintln(Stderr, color.RedString(text))
-	os.Exit(1)
+	panic(text)
 }
 
 // Info prints information.
