@@ -1,5 +1,5 @@
-# github.com/fatih/color v1.10.0
-## explicit
+# github.com/fatih/color v1.15.0
+## explicit; go 1.17
 github.com/fatih/color
 # github.com/fogleman/gg v1.3.0
 ## explicit
@@ -8,13 +8,11 @@ github.com/fogleman/gg
 ## explicit
 github.com/golang/freetype/raster
 github.com/golang/freetype/truetype
-# github.com/jteeuwen/go-bindata v3.0.7+incompatible
-## explicit
-github.com/jteeuwen/go-bindata
-# github.com/mattn/go-colorable v0.1.8
-## explicit
+# github.com/mattn/go-colorable v0.1.13
+## explicit; go 1.15
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.12
+# github.com/mattn/go-isatty v0.0.19
+## explicit; go 1.15
 github.com/mattn/go-isatty
 # github.com/mitchellh/go-homedir v1.1.0
 ## explicit
@@ -22,12 +20,15 @@ github.com/mitchellh/go-homedir
 # github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 ## explicit
 github.com/nfnt/resize
-# golang.org/x/image v0.0.0-20201208152932-35266b937fa6
-## explicit
+# golang.org/x/image v0.12.0
+## explicit; go 1.12
 golang.org/x/image/draw
 golang.org/x/image/font
 golang.org/x/image/font/basicfont
 golang.org/x/image/math/f64
 golang.org/x/image/math/fixed
-# golang.org/x/sys v0.0.0-20200223170610-d5e6a3e2c0ae
+# golang.org/x/sys v0.12.0
+## explicit; go 1.17
+golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
+golang.org/x/sys/windows

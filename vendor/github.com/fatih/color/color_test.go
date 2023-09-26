@@ -142,9 +142,10 @@ func TestNoColor(t *testing.T) {
 
 	// global check
 	NoColor = true
-	defer func() {
+	t.Cleanup(func() {
 		NoColor = false
-	}()
+	})
+
 	for _, c := range testColors {
 		p := New(c.code)
 		p.Print(c.text)
@@ -154,7 +155,83 @@ func TestNoColor(t *testing.T) {
 			t.Errorf("Expecting %s, got '%s'\n", c.text, line)
 		}
 	}
+}
 
+func TestNoColor_Env(t *testing.T) {
+	rb := new(bytes.Buffer)
+	Output = rb
+
+	testColors := []struct {
+		text string
+		code Attribute
+	}{
+		{text: "black", code: FgBlack},
+		{text: "red", code: FgRed},
+		{text: "green", code: FgGreen},
+		{text: "yellow", code: FgYellow},
+		{text: "blue", code: FgBlue},
+		{text: "magent", code: FgMagenta},
+		{text: "cyan", code: FgCyan},
+		{text: "white", code: FgWhite},
+		{text: "hblack", code: FgHiBlack},
+		{text: "hred", code: FgHiRed},
+		{text: "hgreen", code: FgHiGreen},
+		{text: "hyellow", code: FgHiYellow},
+		{text: "hblue", code: FgHiBlue},
+		{text: "hmagent", code: FgHiMagenta},
+		{text: "hcyan", code: FgHiCyan},
+		{text: "hwhite", code: FgHiWhite},
+	}
+
+	os.Setenv("NO_COLOR", "1")
+	t.Cleanup(func() {
+		os.Unsetenv("NO_COLOR")
+	})
+
+	for _, c := range testColors {
+		p := New(c.code)
+		p.Print(c.text)
+
+		line, _ := rb.ReadString('\n')
+		if line != c.text {
+			t.Errorf("Expecting %s, got '%s'\n", c.text, line)
+		}
+	}
+}
+
+func Test_noColorIsSet(t *testing.T) {
+	tests := []struct {
+		name string
+		act  func()
+		want bool
+	}{
+		{
+			name: "default",
+			act:  func() {},
+			want: false,
+		},
+		{
+			name: "NO_COLOR=1",
+			act:  func() { os.Setenv("NO_COLOR", "1") },
+			want: true,
+		},
+		{
+			name: "NO_COLOR=",
+			act:  func() { os.Setenv("NO_COLOR", "") },
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Cleanup(func() {
+				os.Unsetenv("NO_COLOR")
+			})
+			tt.act()
+			if got := noColorIsSet(); got != tt.want {
+				t.Errorf("noColorIsSet() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
 func TestColorVisual(t *testing.T) {
@@ -334,7 +411,8 @@ func TestNoFormatString(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		s := fmt.Sprintf("%s", test.f(test.format, test.args...))
+		s := test.f(test.format, test.args...)
+
 		if s != test.want {
 			t.Errorf("[%d] want: %q, got: %q", i, test.want, s)
 		}
