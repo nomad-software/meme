@@ -111,10 +111,10 @@ func (opt *Options) PrintUsage() {
 	fmt.Println("  Templates")
 	fmt.Println("")
 	for x, name := range ImageIds {
-		if ((x + 1) % 2) == 0 {
-			fmt.Fprintln(output.Stdout, color.CyanString("%s", name))
-		} else {
+		if (x % 2) == 0 {
 			fmt.Fprint(output.Stdout, color.CyanString("    %-30s", name))
+		} else {
+			fmt.Fprintln(output.Stdout, color.CyanString("%s", name))
 		}
 	}
 
