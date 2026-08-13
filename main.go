@@ -8,12 +8,20 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/nomad-software/meme/cli"
+	"github.com/nomad-software/meme/font"
 	"github.com/nomad-software/meme/image"
 	"github.com/nomad-software/meme/output"
 )
 
 func main() {
 	opt := cli.ParseOptions()
+
+	// If a font was supplied on the command line, try to use it.
+	if opt.Font != "" {
+		if err := font.SetPath(opt.Font); err != nil {
+			output.OnError(err, "Invalid font file")
+		}
+	}
 
 	if opt.Help {
 		opt.PrintUsage()
