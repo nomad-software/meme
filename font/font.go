@@ -16,16 +16,16 @@ var (
 	Path string
 )
 
-// SetPath overrides the font path at runtime. If the file exists it will be used directly.
-func SetPath(p string) error {
+// Override the font path at runtime.
+func SetPath(p string) {
 	if p == "" {
-		return nil
+		return
 	}
 
 	// direct file
 	if _, err := os.Stat(p); err == nil {
 		Path = p
-		return nil
+		return
 	}
 
 	// try fc-match (Linux/macOS with fontconfig)
@@ -36,13 +36,13 @@ func SetPath(p string) error {
 			if f != "" {
 				if _, err := os.Stat(f); err == nil {
 					Path = f
-					return nil
+					return
 				}
 			}
 		}
 	}
 
-	return fmt.Errorf("font not found: %s", p)
+	output.Error(fmt.Sprintf("Invalid font: %s", p))
 }
 
 // Write the embedded font to the temporary directory.

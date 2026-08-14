@@ -16,13 +16,6 @@ import (
 func main() {
 	opt := cli.ParseOptions()
 
-	// If a font was supplied on the command line, try to use it.
-	if opt.Font != "" {
-		if err := font.SetPath(opt.Font); err != nil {
-			output.OnError(err, "Invalid font file")
-		}
-	}
-
 	if opt.Help {
 		opt.PrintUsage()
 
@@ -32,6 +25,8 @@ func main() {
 		}
 
 	} else if opt.Valid() {
+		font.SetPath(opt.Font)
+
 		st := image.Load(opt)
 		st = image.RenderImage(opt, st)
 
