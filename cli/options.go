@@ -42,6 +42,7 @@ type Options struct {
 	Top           string
 	Trigger       bool
 	ListTemplates bool
+	Font          string
 }
 
 // ParseOptions parses the command line options.
@@ -59,6 +60,7 @@ func ParseOptions() Options {
 	flag.BoolVar(&opt.Shake, "shake", false, "Shake the image to intensify it. Always outputs a gif.\n")
 	flag.BoolVar(&opt.Trigger, "trigger", false, "Shake the image and add a triggered banner. Always outputs a gif.\n")
 	flag.BoolVar(&opt.ListTemplates, "list-templates", false, "List all of the built in templates.\n")
+	flag.StringVar(&opt.Font, "f", "", "The font to use for text rendering. Either a path to a ttf file or name of a font installed on your system.\n")
 	flag.Parse()
 
 	parsed := strings.Split(text, "|")
@@ -130,5 +132,6 @@ func (opt *Options) PrintUsage() {
 	color.Cyan("    meme -i brace-yourselves -t \"Brace yourselves|The memes are coming!\"")
 	color.Cyan("    meme -i http://i.imgur.com/FsWetC0.jpg -t \"|China\"")
 	color.Cyan("    meme -i ~/Pictures/face.png -t \"Hello\"")
+	color.Cyan("    meme -i ~/Pictures/magic-carpet.png -t \"A whole new world...\" -font Arial")
 	fmt.Println("")
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/nomad-software/meme/cli"
+	"github.com/nomad-software/meme/font"
 	"github.com/nomad-software/meme/image"
 	"github.com/nomad-software/meme/output"
 )
@@ -24,6 +25,8 @@ func main() {
 		}
 
 	} else if opt.Valid() {
+		font.SetPath(opt.Font)
+
 		st := image.Load(opt)
 		st = image.RenderImage(opt, st)
 
