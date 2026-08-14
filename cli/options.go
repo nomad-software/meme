@@ -60,7 +60,7 @@ func ParseOptions() Options {
 	flag.BoolVar(&opt.Shake, "shake", false, "Shake the image to intensify it. Always outputs a gif.\n")
 	flag.BoolVar(&opt.Trigger, "trigger", false, "Shake the image and add a triggered banner. Always outputs a gif.\n")
 	flag.BoolVar(&opt.ListTemplates, "list-templates", false, "List all of the built in templates.\n")
-	flag.StringVar(&opt.Font, "font", "", "Use a custom font.\n")
+	flag.StringVar(&opt.Font, "f", "", "The font to use for text rendering. Either a path to a ttf file or name of a font installed on your system.\n")
 	flag.Parse()
 
 	parsed := strings.Split(text, "|")
