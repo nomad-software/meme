@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/nomad-software/meme/cli"
 	"github.com/nomad-software/meme/data"
 	"github.com/nomad-software/meme/output"
 )
@@ -17,20 +18,20 @@ var (
 )
 
 // Override the font path at runtime.
-func SetPath(p string) {
-	if p == "" {
+func SetPath(opt cli.Options) {
+	if opt.Font == "" {
 		return
 	}
 
 	// direct file
-	if _, err := os.Stat(p); err == nil {
-		Path = p
+	if _, err := os.Stat(opt.Font); err == nil {
+		Path = opt.Font
 		return
 	}
 
 	// try fc-match (Linux/macOS with fontconfig)
 	if fc, err := exec.LookPath("fc-match"); err == nil {
-		out, err := exec.Command(fc, "-f", "%{file}\\n", p).Output()
+		out, err := exec.Command(fc, "-f", "%{file}\\n", opt.Font).Output()
 		if err == nil {
 			f := strings.TrimSpace(string(out))
 			if f != "" {
@@ -42,7 +43,7 @@ func SetPath(p string) {
 		}
 	}
 
-	output.Error(fmt.Sprintf("Invalid font: %s", p))
+	output.Error(fmt.Sprintf("Invalid font: %s", opt.Font))
 }
 
 // Write the embedded font to the temporary directory.

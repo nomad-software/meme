@@ -25,7 +25,7 @@ func main() {
 		}
 
 	} else if opt.Valid() {
-		font.SetPath(opt.Font)
+		font.SetPath(opt)
 
 		st := image.Load(opt)
 		st = image.RenderImage(opt, st)

@@ -132,6 +132,6 @@ func (opt *Options) PrintUsage() {
 	color.Cyan("    meme -i brace-yourselves -t \"Brace yourselves|The memes are coming!\"")
 	color.Cyan("    meme -i http://i.imgur.com/FsWetC0.jpg -t \"|China\"")
 	color.Cyan("    meme -i ~/Pictures/face.png -t \"Hello\"")
-	color.Cyan("    meme -i ~/Pictures/magic-carpet.png -t \"A whole new world...\" -font Arial")
+	color.Cyan("    meme -i ~/Pictures/magic-carpet.png -t \"A whole new world...\" -f Arial")
 	fmt.Println("")
 }
